@@ -5,6 +5,10 @@
   "scripts": {
     "dev": "pnpm --filter frontend dev",
     "build": "pnpm --filter frontend build",
-    "lint": "pnpm --filter frontend lint"
+    "lint": "pnpm -r --if-present lint",
+    "test": "pnpm -r --if-present test",
+    "eval": "pnpm --filter @sorot/core eval",
+    "db:generate": "pnpm --filter frontend db:generate",
+    "db:migrate": "pnpm --filter frontend db:migrate"
   }
 }

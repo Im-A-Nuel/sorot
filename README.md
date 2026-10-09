@@ -15,7 +15,7 @@ The same pattern is proven on Polymarket by extensions like PMs4X. Sorot is the 
 ## How it works
 
 1. The content script reads each tweet as it appears in the timeline.
-2. The backend matches the tweet against the Panta catalog: entity prefilter, embedding similarity, LLM yes/no verification.
+2. The API matches the tweet against the Panta catalog: entity prefilter, embedding similarity, LLM yes/no verification.
 3. If the match passes, a chip shows the market and its odds under the tweet. If not, nothing is shown.
 4. Clicking the chip opens a hosted trade page: quote, build, sign with Phantom, send.
 5. The positions page shows open positions and lets you claim winnings.
@@ -47,7 +47,7 @@ The same pattern is proven on Polymarket by extensions like PMs4X. Sorot is the 
 | Layer | Choice |
 | --- | --- |
 | Extension | Chrome Manifest V3, TypeScript, Vite |
-| Backend + trade page | Next.js (App Router), route handlers |
+| App + API | Next.js (App Router), route handlers |
 | Matching | Embedding API + small LLM for verification |
 | Wallet | Solana wallet adapter (Phantom) on the hosted trade page |
 | Database | Postgres |
@@ -55,18 +55,18 @@ The same pattern is proven on Polymarket by extensions like PMs4X. Sorot is the 
 
 ## Quick start
 
-Prerequisites: Node 20+, pnpm 9+, Postgres, a Panta API key, an embedding/LLM API key, Chrome.
+Prerequisites: Node 20.12+, pnpm 9+, Chrome. A Panta key, an embedding/LLM key and Postgres are optional: without them Sorot runs on labeled demo fixtures.
 
 ```bash
 git clone https://github.com/<you>/sorot && cd sorot
 pnpm install
-cp .env.example .env              # Panta key, LLM key, DB
-pnpm db:migrate
-pnpm --filter web dev             # backend + trade page on :3000
-pnpm --filter extension build     # outputs apps/extension/dist
+cp .env.example .env              # optional: Panta key, LLM key, DATABASE_URL
+pnpm db:migrate                   # only with DATABASE_URL (Neon)
+pnpm dev                          # app, API and trade page on :3000
+pnpm --filter extension build:local   # extension that talks to http://localhost:3000/api
 ```
 
-Load the extension: open `chrome://extensions`, enable Developer mode, click "Load unpacked", select `apps/extension/dist`. Open x.com.
+Load the extension: open `chrome://extensions`, enable Developer mode, click "Load unpacked", select `extension/dist`. Open x.com.
 
 Run the match evaluation:
 
@@ -78,18 +78,19 @@ pnpm eval                          # prints precision and recall on eval/tweets.
 
 ```
 sorot/
-  apps/
-    extension/   content script (x.com), service worker, popup
-    web/         API routes, trade page /t/[marketId], positions page
+  frontend/      Next.js app: landing page, trade page /t/[marketId], positions page, API routes (app/api)
+  extension/     Chrome MV3: x.com content script and chip, service worker, popup
   packages/
-    core/        types, server-only Panta client, matching pipeline
-  eval/          50 labeled tweets + scorer
+    core/        types, Panta client (live and fixture), matching pipeline, service layer
+    db/          Drizzle schema, Postgres store, migrations
+  contracts/     placeholder, empty for now
+  eval/          labeled tweets + scorer
   docs/          requirements, architecture, schema, roadmap, submission
 ```
 
 ## Security
 
-- The Panta API key lives only on the server. The browser talks to Sorot's backend, which proxies an allowlist of Panta routes.
+- The Panta API key lives only on the server. The browser talks to Sorot's API (route handlers in the same app), which proxies an allowlist of Panta routes.
 - The extension never stores wallet keys. Signing happens in Phantom on the hosted trade page.
 
 ## Docs

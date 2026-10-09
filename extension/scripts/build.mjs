@@ -7,8 +7,14 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = resolve(root, process.env.OUT_DIR ?? "dist");
 const watch = process.argv.includes("--watch");
 
-const appUrl = process.env.VITE_APP_URL ?? "http://localhost:3000";
-const apiUrl = process.env.VITE_API_URL ?? "";
+const flag = (name) => {
+  const i = process.argv.indexOf(name);
+  return i !== -1 ? process.argv[i + 1] : undefined;
+};
+
+const apiUrl = (flag("--api") ?? process.env.VITE_API_URL ?? "").replace(/\/+$/, "");
+// The trade page lives on the same site as the API, so it defaults to the API's origin.
+const appUrl = flag("--app") ?? process.env.VITE_APP_URL ?? (apiUrl ? new URL(apiUrl).origin : "http://localhost:3000");
 
 const define = {
   __APP_URL__: JSON.stringify(appUrl),

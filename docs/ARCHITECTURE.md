@@ -4,12 +4,12 @@ Last updated: Oct 5, 2026
 
 ## Overview
 
-Sorot has three parts: a Manifest V3 extension that only reads tweets and renders chips, a Next.js backend that owns the Panta API key and the matching pipeline, and a hosted trade page where Phantom signs. The extension never touches keys or the Panta key.
+Sorot has two deployables. A Manifest V3 extension only reads tweets and renders chips. One Next.js app serves the landing page, the hosted trade and positions pages where Phantom signs, and the API (route handlers under `/api`) that owns the Panta key and the matching pipeline. The extension never touches keys or the Panta key. The logic lives in `packages/core` and `packages/db`, so the API could move to its own service later without rewriting it.
 
 ## System Diagram
 
 ```
-  x.com tab                                   Sorot backend (Next.js)                 Panta API
+  x.com tab                                   Sorot app (Next.js, /api)               Panta API
  +---------------------+   MATCH batch    +------------------------------+   proxy   +-------------+
  | content script      |----------------->| /api/match                   |---------->| /markets/   |
  | observe tweets      |   via service    |   prefilter -> embed -> LLM  |           | /markets/id |
@@ -28,14 +28,15 @@ Sorot has three parts: a Manifest V3 extension that only reads tweets and render
 
 | Component | Responsibility |
 | --- | --- |
-| `apps/extension` content script | Observe tweets with `MutationObserver`, batch, render chips, open trade popup |
-| `apps/extension` service worker | Session cache, backend calls, dedupe |
-| `apps/web` `/api/match` | Matching pipeline and cache |
-| `apps/web` catalog job | Sync `GET /markets/` every 5 min, hydrate titles, refresh embeddings |
-| `apps/web` trade routes | Proxy quote, build, positions, claim to Panta with server-side key |
-| `apps/web` `/t/[marketId]` | Trade page with wallet adapter |
-| `apps/web` `/positions` | Positions and claims |
-| `packages/core/match` | Prefilter, embedding similarity, LLM verification |
+| `extension` content script | Observe tweets with `MutationObserver`, batch, render chips, open trade popup |
+| `extension` service worker | Session cache, backend calls, dedupe |
+| `frontend` `/api/match` | Matching pipeline and cache |
+| `frontend` catalog sync | Sync `GET /markets/` when older than the TTL (lazily on `/api/match`) and daily through Vercel Cron, hydrate titles, refresh embeddings |
+| `frontend` trade routes | Proxy quote, build, positions, claim to Panta with server-side key |
+| `frontend` `/t/[marketId]` | Trade page with wallet adapter |
+| `frontend` `/positions` | Positions and claims |
+| `packages/core` | Panta client (live and fixture), matching pipeline, service layer, money helpers |
+| `packages/db` | Drizzle schema, Postgres store, migrations |
 | `eval/` | Labeled tweets and scorer |
 
 ## Matching pipeline
@@ -49,7 +50,7 @@ tweet text
   -> match { marketId, title, yesPrice, noPrice }
 ```
 
-The catalog is small (about 86 markets during research), so every market title is embedded and kept in memory on the server.
+The catalog is small (about 86 markets during research), so every market title is embedded once and the vectors are cached in Postgres per model. A cold serverless instance reloads them instead of recomputing.
 
 ## Tech Stack
 
@@ -58,19 +59,18 @@ The catalog is small (about 86 markets during research), so every market title i
 - Permissions: `storage`, host `https://x.com/*`, Sorot backend origin
 
 ### Backend and pages
-- Next.js App Router, route handlers, Zod validation
-- Solana wallet adapter with Phantom on the trade page
-- Tailwind CSS
+- Next.js App Router, route handlers, Zod validation, Tailwind CSS v4
+- The injected Phantom provider on the trade and positions pages, and `@solana/web3.js` to compile Panta's instructions
 
 ### Matching
 - Embedding API for title and tweet vectors
 - Small LLM for yes/no verification, called only for candidates that pass similarity
 
 ### Database
-- Postgres via Drizzle: catalog, embeddings, match cache, trade attempts, eval runs
+- Neon Postgres via Drizzle (HTTP driver, built for serverless): catalog, embeddings, match cache, trade attempts, claims
 
 ### Infrastructure
-- Vercel for backend and pages; a cron route for catalog sync
+- One Vercel project for the app and the API; a daily cron route for catalog sync
 - Extension distributed as a GitHub release and an unlisted Chrome Web Store listing
 
 ## Key Design Decisions

@@ -114,6 +114,13 @@ describe("sanitizeResults", () => {
     assert.equal(out[0].match?.noPrice, null);
   });
 
+  it("keeps the demo flag so fixture chips stay labeled", () => {
+    const out = sanitizeResults({ results: [{ tweetId: "1", match: { ...good, demo: true } }] }, ["1"]);
+    assert.equal(out[0].match?.demo, true);
+    const live = sanitizeResults({ results: [{ tweetId: "1", match: { ...good, demo: "yes" } }] }, ["1"]);
+    assert.equal(live[0].match?.demo, undefined);
+  });
+
   it("rejects bad market ids and survives garbage", () => {
     assert.equal(sanitizeResults({ results: [{ tweetId: "1", match: { ...good, marketId: "../x" } }] }, ["1"])[0].match, null);
     assert.deepEqual(sanitizeResults("nope", ["1"]), [{ tweetId: "1", match: null }]);

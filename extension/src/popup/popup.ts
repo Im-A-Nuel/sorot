@@ -20,7 +20,7 @@ toggle.addEventListener("change", async () => {
 });
 
 mode.textContent = DEMO_MODE
-  ? "Demo matching. No backend is connected, so chips come from a few labeled fixtures."
+  ? "Demo matching. No API is connected, so chips come from a few labeled fixtures."
   : `Matching through ${new URL(API_URL).host}.`;
 
 const positionsUrl = new URL("/positions", APP_URL).toString();

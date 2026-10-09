@@ -28,7 +28,7 @@ export const content = {
 export const trust = {
   line: "Reads x.com in Chrome. Markets and quotes from Panta. Signing in Phantom on Solana.",
   status:
-    "Early build. The extension, trade page and positions page run on demo data. Live matching and mainnet trading connect when the backend ships.",
+    "Early build. The extension, trade page, positions page and API run on built-in demo data. They switch to live Panta markets and mainnet trading once a Panta API key is connected.",
   note: "Prices in previews on this page are illustrative. A live chip only shows what the Panta API returned.",
 } as const;
 
@@ -82,7 +82,7 @@ export const problem = {
 export const how = {
   eyebrow: "How it works",
   title: "Odds under the tweet. One click to trade.",
-  body: "A Chrome extension reads the timeline, the backend matches tweets to the Panta catalog, and a chip appears only when the match is verified.",
+  body: "A Chrome extension reads the timeline, the API matches tweets to the Panta catalog, and a chip appears only when the match is verified.",
   steps: [
     {
       title: "Read",
@@ -90,7 +90,7 @@ export const how = {
     },
     {
       title: "Match",
-      body: "The backend checks the tweet against the Panta catalog: entity prefilter, embedding similarity, then a yes/no verification.",
+      body: "The API checks the tweet against the Panta catalog: entity prefilter, embedding similarity, then a yes/no verification.",
     },
     {
       title: "Show",
@@ -135,7 +135,7 @@ export const matching = {
     { value: "< 4", caption: "clicks from chip to trade" },
   ],
   targetsNote:
-    "Targets, not results. The backend pipeline is still being built, and the extension uses labeled demo fixtures until it ships. Measured precision will come from pnpm eval.",
+    "Targets, not results. The pipeline is built and tested on synthetic tweets, but real precision needs the Panta catalog and 50 labeled tweets. It will come from pnpm eval.",
 } as const;
 
 export const trade = {
@@ -178,17 +178,17 @@ export const features = {
     {
       title: "Trade from the tweet",
       status: "Demo data",
-      body: "Quote, sign and confirm from a popup opened by the chip. The popup is built. It runs on demo data until the backend connects.",
+      body: "Quote, sign and confirm from a popup opened by the chip. The popup is built. It runs on demo data until a Panta key is connected.",
     },
     {
       title: "Positions and claims",
       status: "Demo data",
-      body: "Open positions for your wallet and a claim button for resolved markets. The page is built and runs on demo data.",
+      body: "Open positions for your wallet and a claim button for resolved markets. The page is built and runs on demo data until a Panta key is connected.",
     },
     {
       title: "Trade attribution",
-      status: "Planned",
-      body: "Every trade will be reported to Panta with Sorot's attribution id, so Panta can see the volume Sorot brings.",
+      status: "Untested live",
+      body: "Every trade is reported to Panta with Sorot's attribution id, so Panta can see the volume Sorot brings. The code is written and gets tested once a Panta key is connected.",
     },
     {
       title: "Read-only mode",
@@ -201,16 +201,16 @@ export const features = {
 export const security = {
   eyebrow: "Security",
   title: "Built so you do not have to trust us with keys.",
-  body: "The extension only reads tweets and draws chips. Everything sensitive lives somewhere else, on purpose. The backend half is still being built. The extension and trade pages already follow this design.",
+  body: "The extension only reads tweets and draws chips. Everything sensitive lives somewhere else, on purpose. The API runs inside the same app and only calls an allowlist of Panta routes.",
   flow: [
     { name: "Extension", role: "Reads tweets, draws chips. Holds no keys." },
-    { name: "Sorot backend", role: "Holds the Panta key. Proxies an allowlist of routes." },
+    { name: "Sorot API", role: "Holds the Panta key. Proxies an allowlist of routes." },
     { name: "Phantom", role: "Signs every transaction on the hosted trade page." },
   ],
   items: [
     {
       title: "Panta key stays on the server",
-      body: "The browser talks to Sorot's backend. The key never ships in the extension, and a build check greps the bundle for it.",
+      body: "The browser talks to Sorot's API. The key never ships in the extension, and a build check greps the bundle for it.",
     },
     {
       title: "No wallet keys, ever",
@@ -218,7 +218,7 @@ export const security = {
     },
     {
       title: "Minimal permissions",
-      body: "Host access is limited to x.com and the Sorot backend, plus local storage. Nothing else.",
+      body: "Host access is limited to x.com and the Sorot API, plus local storage. Nothing else.",
     },
     {
       title: "Honest numbers",
@@ -230,7 +230,7 @@ export const security = {
 export const pantaApi = {
   eyebrow: "Panta API",
   title: "Panta, end to end.",
-  body: "The Panta routes the Sorot backend is being built around: catalog, quotes, transaction building, signature submission, verification, positions, claims and trade reporting.",
+  body: "The Panta routes the Sorot API calls: catalog, quotes, transaction building, signature submission, verification, positions, claims and trade reporting.",
   note: "* Path taken from public integrations. It gets confirmed when the Panta API key is issued.",
   rows: [
     { route: "GET /markets/", use: "Catalog sync" },
@@ -252,8 +252,8 @@ export const install = {
   commands: [
     { label: "Clone the repository", code: "git clone https://github.com/Im-A-Nuel/sorot.git" },
     { label: "Install dependencies", code: "pnpm install" },
-    { label: "Build the extension", code: "pnpm --filter extension build" },
-    { label: "Serve the trade page on localhost:3000", code: "pnpm dev" },
+    { label: "Build the extension against the local API", code: "pnpm --filter extension build:local" },
+    { label: "Run the app and API on localhost:3000", code: "pnpm dev" },
   ],
   steps: [
     "Open chrome://extensions and turn on Developer mode.",
@@ -268,7 +268,7 @@ export const faq = {
   items: [
     {
       q: "What works today?",
-      a: "The extension, the trade page and the positions page are built and run on demo data. Live matching, Panta quotes and mainnet signing connect when the backend ships. Nothing in the current build moves real money.",
+      a: "The extension, the trade page, the positions page and the API are built and run on demo data. Live matching, Panta quotes and mainnet signing switch on when a Panta API key is connected. Nothing in the current build moves real money.",
     },
     {
       q: "Where do I connect my wallet?",

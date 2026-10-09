@@ -20,6 +20,7 @@ function market(raw: unknown): MatchedMarket | null {
     title: m.title.slice(0, MAX_TITLE),
     yesPrice: price(m.yesPrice),
     noPrice: price(m.noPrice),
+    ...(m.demo === true ? { demo: true } : {}),
   };
 }
 

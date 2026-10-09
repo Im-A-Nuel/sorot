@@ -253,6 +253,37 @@ const demoDist = resolve(root, "dist");
   server.close();
 }
 
+// ---------------------------------------------------------------- real API (Next.js route handlers)
+{
+  const liveDist = resolve(root, "dist-live");
+  execFileSync(process.execPath, ["scripts/build.mjs", "--api", "http://localhost:3000/api"], {
+    cwd: root,
+    stdio: "ignore",
+    env: { ...process.env, OUT_DIR: "dist-live" },
+  });
+
+  const { context, errors } = await launch(liveDist);
+  const p = await context.newPage();
+  await context.route("https://x.com/**", (route) => route.fulfill({ contentType: "text/html", body: page("#fff", base) }));
+  await p.goto("https://x.com/home");
+  await p.waitForSelector('[data-sorot-chip="1001"]', { timeout: 20000 });
+  await p.waitForTimeout(800);
+
+  const sol = await chipText(p, "1001");
+  check("real API: chip rendered from /api/match", sol?.title === "Will SOL close above $300 on Oct 31?" && sol?.yes === "YES 0.62");
+  check("real API: fixture data keeps the Demo label", sol?.demo === "Demo");
+  check("real API: missing price shows see odds", (await chipText(p, "1003"))?.see === "see odds");
+  check("real API: no chip for resolved or unrelated tweets", (await chipText(p, "1002")) === null && (await chipText(p, "1004")) === null && (await chipText(p, "1005")) === null);
+
+  const popupPromise = context.waitForEvent("page");
+  await p.locator('[data-sorot-chip="1001"] >> .no').click();
+  const popup = await popupPromise;
+  await popup.getByRole("heading", { name: /SOL close above/ }).waitFor({ timeout: 20000 });
+  check("real API: chip opens the trade page that loads the same market", new URL(popup.url()).searchParams.get("side") === "no");
+  check("real API: no extension errors", errors.length === 0, errors.join(" | "));
+  await context.close();
+}
+
 const failed = results.filter((r) => !r).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);
 process.exit(failed ? 1 : 0);

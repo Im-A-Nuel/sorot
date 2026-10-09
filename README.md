@@ -60,8 +60,7 @@ Prerequisites: Node 20.12+, pnpm 9+, Chrome. A Panta key, an embedding/LLM key a
 ```bash
 git clone https://github.com/<you>/sorot && cd sorot
 pnpm install
-pnpm panta:setup                  # optional: creates a Panta account and API key, writes .env
-cp .env.example .env              # or fill .env by hand: Panta key, LLM key, DATABASE_URL (skip if panta:setup made it)
+pnpm panta:setup                  # creates .env, a Panta account and an API key (or: cp .env.example .env and fill it by hand)
 pnpm db:migrate                   # only with DATABASE_URL (Neon)
 pnpm dev                          # app, API and trade page on :3000
 pnpm --filter extension build:local   # extension that talks to http://localhost:3000/api

@@ -1,5 +1,5 @@
 import { syncCatalog, type SyncStats } from "./catalog.ts";
-import { checkAmount } from "./money.ts";
+import { checkAmount, toMicro } from "./money.ts";
 import { Matcher } from "./match/pipeline.ts";
 import type { PantaClient } from "./panta/client.ts";
 import type { Store, StoredMatch } from "./store.ts";
@@ -25,6 +25,8 @@ export type ServiceDeps = {
   catalogTtlMs?: number;
   matchTtlMs?: number;
   now?: () => number;
+  /** Pause between price retries. Replaced in tests. */
+  sleep?: (ms: number) => Promise<void>;
   log?: (message: string, extra?: unknown) => void;
 };
 
@@ -38,6 +40,7 @@ export function createService(deps: ServiceDeps) {
   const catalogTtl = deps.catalogTtlMs ?? 5 * 60_000;
   const matchTtl = deps.matchTtlMs ?? 24 * 60 * 60_000;
   const log = deps.log ?? (() => {});
+  const sleep = deps.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
   const demo = panta.source !== "live" ? true : undefined;
 
   let ready: Promise<void> | null = null;
@@ -84,8 +87,41 @@ export function createService(deps: ServiceDeps) {
     return stats;
   }
 
-  function toApi(m: CatalogMarket): ApiMatch {
-    return { marketId: m.id, title: m.title, yesPrice: m.yesPrice, noPrice: m.noPrice, url: m.url, demo };
+  /**
+   * Panta fills prices in from on-chain state "when RPC is available", so the same call can return a price and then null.
+   * Ask the detail endpoint a few times, remember the answer for 20 seconds, and fall back to the last synced price.
+   * A price that is still missing stays null, and the chip says "see odds".
+   */
+  const priceCache = new Map<string, { at: number; yes: string | null; no: string | null }>();
+  const PRICE_TTL_MS = 20_000;
+  const PRICE_TRIES = 3;
+
+  async function freshPrices(m: CatalogMarket): Promise<{ yes: string | null; no: string | null }> {
+    const hit = priceCache.get(m.id);
+    if (hit && now() - hit.at < PRICE_TTL_MS) return hit;
+
+    let yes = m.yesPrice;
+    let no = m.noPrice;
+    for (let i = 0; i < PRICE_TRIES; i++) {
+      try {
+        const detail = await panta.getMarket(m.id);
+        if (detail.yesPrice !== null && detail.noPrice !== null) {
+          yes = detail.yesPrice;
+          no = detail.noPrice;
+          break;
+        }
+      } catch (e) {
+        log("price refresh failed", e);
+      }
+      if (i < PRICE_TRIES - 1) await sleep(150);
+    }
+    const out = { at: now(), yes, no };
+    priceCache.set(m.id, out);
+    return out;
+  }
+
+  function toApi(m: CatalogMarket, prices: { yes: string | null; no: string | null }): ApiMatch {
+    return { marketId: m.id, title: m.title, yesPrice: prices.yes, noPrice: prices.no, url: m.url, demo };
   }
 
   async function runLimited<T, R>(items: T[], fn: (item: T) => Promise<R>): Promise<R[]> {
@@ -141,12 +177,35 @@ export function createService(deps: ServiceDeps) {
       fresh.forEach((m) => byTweet.set(m.tweetId, m));
 
       const markets = new Map((await store.listMarkets()).map((m) => [m.id, m]));
-      return ids.map((tweetId) => {
+      // A market that is no longer open never gets a chip.
+      const shown = new Map<string, CatalogMarket>();
+      for (const tweetId of ids) {
         const stored = byTweet.get(tweetId);
-        // Prices come from the latest sync, and a market that is no longer open never gets a chip.
         const market = stored?.marketId ? markets.get(stored.marketId) : undefined;
-        return { tweetId, match: market && market.status === "open" && market.title ? toApi(market) : null };
+        if (market && market.status === "open" && market.title) shown.set(market.id, market);
+      }
+      const prices = new Map<string, { yes: string | null; no: string | null }>();
+      await Promise.all([...shown.values()].map(async (m) => prices.set(m.id, await freshPrices(m))));
+
+      return ids.map((tweetId) => {
+        const marketId = byTweet.get(tweetId)?.marketId;
+        const market = marketId ? shown.get(marketId) : undefined;
+        return { tweetId, match: market ? toApi(market, prices.get(market.id)!) : null };
       });
+    },
+
+    /** An open market to send people to from the landing page. Prefers one with a price, then the most volume. */
+    async featuredMarket(): Promise<CatalogMarket | null> {
+      await ensureCatalog();
+      const open = (await store.listMarkets()).filter((m) => m.status === "open" && m.title.trim() !== "");
+      const volume = (m: CatalogMarket) => toMicro(m.volumeUsdc) ?? BigInt(0);
+      open.sort((a, b) => {
+        const priced = Number(b.yesPrice !== null) - Number(a.yesPrice !== null);
+        if (priced !== 0) return priced;
+        const v = volume(b) - volume(a);
+        return v > BigInt(0) ? 1 : v < BigInt(0) ? -1 : a.title.localeCompare(b.title);
+      });
+      return open[0] ?? null;
     },
 
     async getMarket(id: string): Promise<CatalogMarket> {

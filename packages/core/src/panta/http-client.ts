@@ -34,13 +34,23 @@ const CODE_MAP: Record<string, ErrorCode> = {
   NOT_FOUND: "NOT_FOUND",
   NOT_CLAIMABLE: "NOT_CLAIMABLE",
   QUOTE_EXPIRED: "QUOTE_EXPIRED",
+  // The curve moved beyond maxSlippageBps between quote and build.
+  QUOTE_STALE: "SLIPPAGE",
   SLIPPAGE_EXCEEDED: "SLIPPAGE",
   SLIPPAGE: "SLIPPAGE",
   MARKET_CLOSED: "MARKET_CLOSED",
-  INVALID_MARKET_PARAMS: "INVALID_PARAMS",
+  MARKET_NOT_IN_PRIMARY: "MARKET_CLOSED",
+  AMOUNT_TOO_SMALL: "INVALID_PARAMS",
   INVALID_PARAMS: "INVALID_PARAMS",
   TX_FAILED: "TX_FAILED",
 };
+
+/**
+ * Seen on the live API: when Panta cannot read a market's on-chain state (its price is null and `onChain` is null),
+ * quote and build answer INVALID_MARKET_PARAMS with no message. The request is fine. It clears on its own, so it is
+ * treated as an upstream problem and retried.
+ */
+const MARKET_UNREADABLE = "INVALID_MARKET_PARAMS";
 
 export class HttpPantaClient implements PantaClient {
   readonly source: "live" | "sandbox";
@@ -112,6 +122,9 @@ export class HttpPantaClient implements PantaClient {
       const secs = Number(retryAfter);
       return new SorotError("RATE_LIMITED", "Panta is rate limiting requests.", Number.isFinite(secs) ? secs * 1000 : 2000);
     }
+    if (raw === MARKET_UNREADABLE) {
+      return new SorotError("PANTA_UPSTREAM", "Panta could not read this market from the chain right now. Try again in a moment.");
+    }
     if (CODE_MAP[raw]) return new SorotError(CODE_MAP[raw], message);
     if (status === 404) return new SorotError("NOT_FOUND", message);
     if (status === 400 || status === 422) return new SorotError("INVALID_PARAMS", message);
@@ -120,7 +133,7 @@ export class HttpPantaClient implements PantaClient {
 
   async listMarkets(): Promise<CatalogMarket[]> {
     const out: CatalogMarket[] = [];
-    let path: string = routes.markets();
+    let path: string = `${routes.markets()}?limit=50`;
     for (let page = 0; page < MAX_PAGES; page++) {
       const raw = await this.request("GET", path);
       const now = this.now();
@@ -130,7 +143,7 @@ export class HttpPantaClient implements PantaClient {
       }
       const cursor = nextCursor(raw);
       if (!cursor) break;
-      path = `${routes.markets()}?cursor=${encodeURIComponent(cursor)}`;
+      path = `${routes.markets()}?limit=50&cursor=${encodeURIComponent(cursor)}`;
     }
     return out;
   }
@@ -156,24 +169,41 @@ export class HttpPantaClient implements PantaClient {
     }
   }
 
+  /** Retries a call that failed only because Panta could not read the market. Other errors are final. */
+  private async retryUnreadable<T>(fn: () => Promise<T>, tries = 3): Promise<T> {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        return await fn();
+      } catch (e) {
+        const transient = e instanceof SorotError && e.code === "PANTA_UPSTREAM";
+        if (!transient || attempt >= tries) throw e;
+        await this.sleep(400 * attempt);
+      }
+    }
+  }
+
   async quote(req: QuoteRequest): Promise<Quote> {
-    const raw = await this.request("POST", routes.orderQuote(), {
-      marketId: req.marketId,
-      side: req.side.toUpperCase(),
-      amount: req.amountUsdc,
-      wallet: req.wallet,
-      ...(this.cfg.attributionId ? { userId: this.cfg.attributionId } : {}),
-    });
+    const raw = await this.retryUnreadable(() =>
+      this.request("POST", routes.orderQuote(), {
+        marketId: req.marketId,
+        side: req.side,
+        amountUsdc: req.amountUsdc,
+        wallet: req.wallet,
+        ...(this.cfg.attributionId ? { userId: this.cfg.attributionId } : {}),
+      }),
+    );
     return normalizeQuote(raw, { ...req, maxSlippageBps: DEFAULT_SLIPPAGE_BPS }, this.now());
   }
 
   async build(req: { quoteId: string; maxSlippageBps: number; wallet: string }) {
-    const raw = await this.request("POST", routes.orderBuild(), {
-      quoteId: req.quoteId,
-      maxSlippageBps: req.maxSlippageBps,
-      wallet: req.wallet,
-      ...(this.cfg.attributionId ? { userId: this.cfg.attributionId } : {}),
-    });
+    const raw = await this.retryUnreadable(() =>
+      this.request("POST", routes.orderBuild(), {
+        quoteId: req.quoteId,
+        maxSlippageBps: req.maxSlippageBps,
+        wallet: req.wallet,
+        ...(this.cfg.attributionId ? { userId: this.cfg.attributionId } : {}),
+      }),
+    );
     return normalizeBuilt(raw, req.quoteId);
   }
 

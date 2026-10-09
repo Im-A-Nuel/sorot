@@ -88,7 +88,7 @@ describe("http panta client", () => {
         assert.equal(seen[0].url, "/api/v1/primaryorderquote/");
         assert.equal(seen[0].headers["x-api-key"], "pk_test_abc");
         assert.equal(seen[0].headers["x-user-id"], "sorot-1");
-        assert.deepEqual(seen[0].body, { marketId: "m1", side: "YES", amount: "5.00", wallet: "W", userId: "sorot-1" });
+        assert.deepEqual(seen[0].body, { marketId: "m1", side: "yes", amountUsdc: "5.00", wallet: "W", userId: "sorot-1" });
       },
     );
   });
@@ -128,6 +128,44 @@ describe("http panta client", () => {
         await assert.rejects(() => client.getMarket("missing"), { code: "NOT_FOUND" });
       },
     );
+  });
+
+  it("retries a quote when Panta cannot read the market, then succeeds", async () => {
+    await withServer(
+      (_req, res, n) => (n < 3 ? json(res, 400, { code: "INVALID_MARKET_PARAMS" }) : json(res, 200, { quoteId: "q9", shares: "2", feeUsdc: "0.02", amountUsdc: "1.00", avgPrice: "0.50" })),
+      async (base, seen) => {
+        const slept: number[] = [];
+        const client = new HttpPantaClient({ apiKey: "k", baseUrl: base, sleep: async (ms) => { slept.push(ms); } });
+        const q = await client.quote({ marketId: "m1", side: "yes", amountUsdc: "1.00", wallet: "W" });
+        assert.equal(q.quoteId, "q9");
+        assert.equal(seen.length, 3);
+        assert.deepEqual(slept, [400, 800]);
+      },
+    );
+  });
+
+  it("reports an unreadable market as an upstream problem after the retries, not as a bad request", async () => {
+    await withServer(
+      (_req, res) => json(res, 400, { code: "INVALID_MARKET_PARAMS" }),
+      async (base, seen) => {
+        const client = new HttpPantaClient({ apiKey: "k", baseUrl: base, sleep: async () => {} });
+        await assert.rejects(() => client.quote({ marketId: "m1", side: "yes", amountUsdc: "1.00", wallet: "W" }), { code: "PANTA_UPSTREAM" });
+        assert.equal(seen.length, 3);
+      },
+    );
+  });
+
+  it("maps slippage, closed and too-small codes, and does not retry them", async () => {
+    for (const [code, expected] of [["QUOTE_STALE", "SLIPPAGE"], ["MARKET_NOT_IN_PRIMARY", "MARKET_CLOSED"], ["AMOUNT_TOO_SMALL", "INVALID_PARAMS"]] as const) {
+      await withServer(
+        (_req, res) => json(res, 400, { code }),
+        async (base, seen) => {
+          const client = new HttpPantaClient({ apiKey: "k", baseUrl: base, sleep: async () => {} });
+          await assert.rejects(() => client.build({ quoteId: "q", maxSlippageBps: 100, wallet: "W" }), { code: expected });
+          assert.equal(seen.length, 1);
+        },
+      );
+    }
   });
 
   it("turns an unreachable Panta into PANTA_UPSTREAM", async () => {

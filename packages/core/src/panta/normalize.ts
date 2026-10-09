@@ -14,9 +14,9 @@ import type {
 
 /**
  * Panta responses are normalized here, in one place.
- * Checked against real responses from the Panta sandbox (pk_test_) on 2026-10-09: catalog, market detail, trades,
- * positions, quote, build, verify and claim build. Still unverified: a live (pk_live_) catalog with several markets,
- * non-empty positions and trades, and the submit and report routes.
+ * Checked against real responses on 2026-10-09: the Panta sandbox (pk_test_) for catalog, detail, positions, quote,
+ * build, verify and claim build, and the live catalog, market detail and trades (pk_live_). Still unverified:
+ * non-empty positions, and the submit and report routes.
  */
 
 type Obj = Record<string, unknown>;
@@ -29,6 +29,14 @@ function pick(o: Obj, ...keys: string[]): unknown {
 }
 
 const str = (v: unknown): string | null => (typeof v === "string" && v.trim() !== "" ? v : null);
+
+/** Live prices can carry nine decimals ("0.501996015"). Display and storage keep four, cut as text, never rounded as a float. */
+function price(v: unknown): string | null {
+  const d = decimal(v);
+  if (d === null) return null;
+  const [int, frac = ""] = d.split(".");
+  return frac.length > 4 ? `${int}.${frac.slice(0, 4)}` : d;
+}
 
 /** Prices and amounts stay strings. Numbers from JSON are turned into their decimal text, never rounded. */
 function decimal(v: unknown): string | null {
@@ -79,16 +87,18 @@ export function normalizeMarket(raw: unknown, now: number, publicBase = "https:/
   if (!id || !MARKET_ID_RE.test(id)) return null;
 
   const prices = isObj(raw.prices) ? raw.prices : {};
-  const titleRaw = str(pick(raw, "title", "question", "name"));
+  // The catalog row often has an empty title while `question` or the detail endpoint has the text.
+  const titleRaw = str(raw.title);
+  const title = titleRaw ?? str(raw.question) ?? str(raw.name) ?? "";
 
   return {
     id,
     titleRaw,
-    title: titleRaw ?? "",
+    title,
     category: str(pick(raw, "category", "tag")),
     status: marketStatus(raw, now),
-    yesPrice: decimal(pick(raw, "yesPrice", "yes_price") ?? prices.yes),
-    noPrice: decimal(pick(raw, "noPrice", "no_price") ?? prices.no),
+    yesPrice: price(pick(raw, "yesPrice", "yes_price") ?? prices.yes),
+    noPrice: price(pick(raw, "noPrice", "no_price") ?? prices.no),
     volumeUsdc: decimal(pick(raw, "volumeUsdc", "volume_usdc", "volume")),
     url: str(pick(raw, "url", "link")) ?? `${publicBase}/markets/${encodeURIComponent(id)}`,
     updatedAt: now,
@@ -184,16 +194,35 @@ export function normalizePosition(raw: unknown, titles: Map<string, string>): Po
   };
 }
 
+/** Panta reports trade sizes in USDC base units: yesAmount for a YES buy, noAmount for a NO buy. */
+function microAmount(v: unknown): bigint {
+  if (typeof v === "number" && Number.isFinite(v) && v > 0) return BigInt(Math.trunc(v));
+  if (typeof v === "string" && /^\d+$/.test(v)) return BigInt(v);
+  return BigInt(0);
+}
+
 export function normalizeTrade(raw: unknown, now: number): RecentTrade | null {
   if (!isObj(raw)) return null;
   const wallet = str(pick(raw, "wallet", "trader", "user"));
-  const amount = decimal(pick(raw, "amountUsdc", "amount", "usdc"));
-  if (!wallet || !amount) return null;
+  if (!wallet) return null;
+
+  const yes = microAmount(raw.yesAmount);
+  const no = microAmount(raw.noAmount);
+  const base = yes > no ? yes : no;
+
+  let amount = decimal(pick(raw, "amountUsdc", "amount", "usdc"));
+  let side = sideOf(pick(raw, "side", "outcome"));
+  if (base > BigInt(0)) {
+    amount = fromMicro(base);
+    side = yes > no ? "yes" : "no";
+  }
+  if (!amount) return null;
+
   return {
     id: str(pick(raw, "id", "signature")) ?? `${wallet}-${amount}`,
     wallet,
-    side: sideOf(pick(raw, "side", "outcome")),
+    side,
     amountUsdc: amount,
-    at: toMs(pick(raw, "at", "createdAt", "created_at", "timestamp"), now),
+    at: toMs(pick(raw, "at", "blockTime", "createdAt", "created_at", "timestamp"), now),
   };
 }

@@ -9,7 +9,7 @@ export const content = {
   secondaryLink: { label: "FAQ", href: "#faq" },
   appLinks: [{ label: "Positions", href: "/positions" }],
   mobileExtras: [
-    { label: "Try the demo", href: "/t/demo-sol-300" },
+    { label: "Try the trade page", href: "/t/open" },
     { label: "Positions", href: "/positions" },
   ],
   primaryLink: { label: "Install guide", href: "#install" },
@@ -17,7 +17,7 @@ export const content = {
   subtitle:
     "Sorot puts Panta odds right under the tweets people argue about. Click the chip, get a quote, and sign with Phantom in a small popup.",
   cta: { label: "Install guide", href: "#install" },
-  secondaryCta: { label: "Try the demo", href: "/t/demo-sol-300" },
+  secondaryCta: { label: "Try the trade page", href: "/t/open" },
   // Illustrative hero preview only. Live chips never show numbers that did not come from the Panta API.
   cards: {
     a: { name: "SOL > $300", symbol: "by Oct 31", price: "YES 0.62", change: "NO 0.38" },
@@ -49,7 +49,7 @@ export const journey = {
     {
       title: "Click the chip to trade",
       body: "A trade window opens. This is where you connect Phantom, pick YES or NO, get a quote and approve it.",
-      link: { label: "Try the demo trade", href: "/t/demo-sol-300" },
+      link: { label: "Open a trade page", href: "/t/open" },
     },
     {
       title: "Check your positions",

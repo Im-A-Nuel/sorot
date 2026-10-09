@@ -39,7 +39,7 @@ const sandboxMarket = {
 };
 
 const routes: Record<string, unknown> = {
-  "GET /api/v1/markets/": { items: [sandboxMarket], nextCursor: null, disclaimer: DISCLAIMER },
+  "GET /api/v1/markets/?limit=50": { items: [sandboxMarket], nextCursor: null, disclaimer: DISCLAIMER },
   [`GET /api/v1/markets/${MARKET_ID}/`]: { ...sandboxMarket, creatorAddress: "TestWallet1", onChain: null, disclaimer: DISCLAIMER },
   [`GET /api/v1/markets/${MARKET_ID}/trades/`]: { marketId: MARKET_ID, items: [], disclaimer: DISCLAIMER },
   [`GET /api/v1/positions/?wallet=${WALLET}`]: { wallet: WALLET, positions: [], disclaimer: DISCLAIMER },

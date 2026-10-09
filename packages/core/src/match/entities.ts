@@ -99,11 +99,11 @@ export type MarketEntities = {
   words: Set<string>;
 };
 
-/** Names are capitalized words in the original title, minus the opening word and common words. */
+/** Names are capitalized words in the original title. Common words such as "Will" are skipped, so a name can open the title. */
 export function extractMarketEntities(title: string): MarketEntities {
   const base = extractEntities(title);
   const names = new Set<string>();
-  const words = title.split(/\s+/).slice(1);
+  const words = title.split(/\s+/);
   for (const w of words) {
     const clean = w.replace(/[^A-Za-z]/g, "");
     if (clean.length >= 3 && /^[A-Z]/.test(clean) && !STOPWORDS.has(clean.toLowerCase())) {

@@ -77,6 +77,75 @@ describe("service: matching", () => {
   });
 });
 
+describe("service: fresh prices", () => {
+  const flaky = (answers: (string | null)[]) => {
+    let calls = 0;
+    const base = new FixturePantaClient();
+    const panta = Object.assign(Object.create(base), {
+      source: "live" as const,
+      listMarkets: async () => (await base.listMarkets()).map((m) => ({ ...m, yesPrice: "0.40", noPrice: "0.60" })),
+      getMarket: async (id: string) => {
+        const m = await base.getMarket(id);
+        const p = answers[Math.min(calls++, answers.length - 1)];
+        return { ...m, yesPrice: p, noPrice: p === null ? null : "0.30" };
+      },
+    });
+    return { panta, calls: () => calls };
+  };
+
+  function build(answers: (string | null)[]) {
+    const { panta, calls } = flaky(answers);
+    const embedder = new HashEmbedder();
+    const matcher = new Matcher({ embedder, verifier: new HeuristicVerifier(), threshold: 0.2 });
+    const service = createService({ panta, store: new MemoryStore(), matcher, embedderId: embedder.id, sleep: async () => {} });
+    return { service, calls };
+  }
+  const t = [{ tweetId: "1", text: "SOL is going to rip past 300 before Halloween", lang: "en" }];
+
+  it("retries when Panta has no price yet and uses the first real one", async () => {
+    const { service, calls } = build([null, null, "0.70"]);
+    const out = await service.matchTweets(t);
+    assert.equal(out[0].match?.yesPrice, "0.70");
+    assert.equal(out[0].match?.noPrice, "0.30");
+    assert.equal(calls(), 3);
+  });
+
+  it("falls back to the last synced price, and never to a made-up number", async () => {
+    const { service } = build([null]);
+    const out = await service.matchTweets(t);
+    assert.equal(out[0].match?.yesPrice, "0.40");
+  });
+
+  it("keeps a missing price null when there is nothing to fall back to", async () => {
+    const { panta } = flaky([null]);
+    const noSync = Object.assign(Object.create(panta), {
+      listMarkets: async () => (await new FixturePantaClient().listMarkets()).map((m) => ({ ...m, yesPrice: null, noPrice: null })),
+    });
+    const embedder = new HashEmbedder();
+    const matcher = new Matcher({ embedder, verifier: new HeuristicVerifier(), threshold: 0.2 });
+    const service = createService({ panta: noSync, store: new MemoryStore(), matcher, embedderId: embedder.id, sleep: async () => {} });
+    const out = await service.matchTweets(t);
+    assert.equal(out[0].match?.yesPrice, null);
+    assert.equal(out[0].match?.noPrice, null);
+  });
+
+  it("remembers a price for a short time instead of asking Panta again", async () => {
+    const { service, calls } = build(["0.55"]);
+    await service.matchTweets(t);
+    const first = calls();
+    await service.matchTweets([{ ...t[0], tweetId: "2" }]);
+    assert.equal(calls(), first);
+  });
+});
+
+describe("service: featured market", () => {
+  it("picks an open market that has a price", async () => {
+    const { service } = setup();
+    const m = await service.featuredMarket();
+    assert.equal(m?.id, "demo-sol-300");
+  });
+});
+
 describe("service: trading", () => {
   it("runs quote, build, submit and verify", async () => {
     const { service } = setup();

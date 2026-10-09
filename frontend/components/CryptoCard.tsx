@@ -27,13 +27,13 @@ export function CryptoCard({ variant, icon, name, symbol, price, change, spark, 
           {icon}
           <div className="whitespace-nowrap leading-tight">
             <div className="text-[calc(13*var(--u))] font-medium text-white">{name}</div>
-            <div className="text-[calc(10.5*var(--u))] text-white/45">{symbol}</div>
+            <div className="text-[calc(10.5*var(--u))] text-white/75">{symbol}</div>
           </div>
         </div>
         {spark}
         <div className="whitespace-nowrap text-right leading-tight">
           <div className="text-[calc(13*var(--u))] font-semibold text-white">{price}</div>
-          {change && <div className="text-[calc(10.5*var(--u))] text-white/45">{change}</div>}
+          {change && <div className="text-[calc(10.5*var(--u))] text-white/75">{change}</div>}
         </div>
       </div>
     </div>

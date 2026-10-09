@@ -11,29 +11,39 @@ export function PantaApi() {
             <SectionHeading eyebrow={pantaApi.eyebrow} title={pantaApi.title} body={pantaApi.body} />
           </Reveal>
 
-          <Reveal delay={100}>
-            <div className="card overflow-hidden !p-0">
-              <div className="hidden grid-cols-[1.25fr_1fr] border-b border-ink/10 bg-ink/[0.04] px-6 py-3.5 text-[12px] font-medium uppercase tracking-[0.12em] text-ink/50 sm:grid">
-                <span>Endpoint</span>
-                <span>Used for</span>
-              </div>
-              <ul>
-                {pantaApi.rows.map((row, i) => (
-                  <li
-                    key={row.route}
-                    className={`grid gap-1 px-6 py-4 sm:grid-cols-[1.25fr_1fr] sm:gap-3 ${
-                      i > 0 ? "border-t border-ink/8" : ""
-                    }`}
+          <table className="w-full border-collapse text-left">
+            <caption className="sr-only">Panta endpoints used by Sorot</caption>
+            <thead className="hidden sm:table-header-group">
+              <tr className="border-b border-ink/25 text-[13px] font-semibold text-muted">
+                <th scope="col" className="py-3 pr-4 font-semibold">
+                  Endpoint
+                </th>
+                <th scope="col" className="py-3 font-semibold">
+                  Used for
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {pantaApi.rows.map((row) => (
+                <tr
+                  key={row.route}
+                  className="block border-b border-ink/15 py-3.5 sm:table-row sm:py-0"
+                >
+                  <th
+                    scope="row"
+                    className="block py-0 pr-4 text-left font-normal sm:table-cell sm:py-4"
                   >
                     <code className="break-all font-mono text-[13px] font-medium text-brand-blue">
                       {row.route}
                     </code>
-                    <span className="text-[14.5px] text-ink/70">{row.use}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Reveal>
+                  </th>
+                  <td className="block pt-1 text-[14.5px] text-muted sm:table-cell sm:py-4 sm:pt-4">
+                    {row.use}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>

@@ -1,44 +1,43 @@
-import type { ReactNode } from "react";
 import { security } from "@/lib/content";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { GlobeIcon, KeyIcon, LockIcon, ShieldIcon } from "@/components/ui/Icons";
-
-const icons: ReactNode[] = [<KeyIcon key="k" />, <LockIcon key="l" />, <GlobeIcon key="g" />, <ShieldIcon key="s" />];
 
 export function Security() {
   return (
     <section id="security" className="relative scroll-mt-6">
       <div className="mx-auto w-full max-w-[1120px] px-5 py-16 md:px-8 md:py-24">
-        <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-          <Reveal>
-            <div className="lg:sticky lg:top-8">
-              <SectionHeading
-                eyebrow={security.eyebrow}
-                title={security.title}
-                body={security.body}
-              />
-            </div>
-          </Reveal>
+        <Reveal>
+          <SectionHeading
+            eyebrow={security.eyebrow}
+            title={security.title}
+            body={security.body}
+          />
+        </Reveal>
 
-          <ul className="grid gap-4 sm:grid-cols-2">
-            {security.items.map((item, i) => (
-              <li key={item.title}>
-                <Reveal delay={i * 80} className="h-full">
-                  <div className="card h-full p-6">
-                    <span className="flex size-11 items-center justify-center rounded-full bg-ink text-white">
-                      {icons[i]}
-                    </span>
-                    <h3 className="mt-5 text-[18px] font-semibold leading-snug tracking-[-0.01em]">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 text-[14.5px] leading-relaxed text-ink/65">{item.body}</p>
-                  </div>
-                </Reveal>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ol
+          aria-label="Who holds what"
+          className="mt-12 grid overflow-hidden rounded-[22px] border border-ink/15 bg-white/60 md:grid-cols-3"
+        >
+          {security.flow.map((node, i) => (
+            <li
+              key={node.name}
+              className={`p-6 ${i > 0 ? "border-t border-ink/15 md:border-l md:border-t-0" : ""}`}
+            >
+              <p className="text-[13px] font-semibold tabular-nums text-brand-blue">0{i + 1}</p>
+              <h3 className="mt-1.5 text-[19px] font-semibold tracking-[-0.015em]">{node.name}</h3>
+              <p className="mt-1.5 text-[14.5px] leading-relaxed text-muted">{node.role}</p>
+            </li>
+          ))}
+        </ol>
+
+        <dl className="mt-12 grid gap-x-16 gap-y-0 border-t border-ink/15 md:grid-cols-2">
+          {security.items.map((item) => (
+            <div key={item.title} className="border-b border-ink/15 py-6">
+              <dt className="text-[18px] font-semibold tracking-[-0.01em]">{item.title}</dt>
+              <dd className="mt-1.5 text-[15px] leading-relaxed text-muted">{item.body}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
   );

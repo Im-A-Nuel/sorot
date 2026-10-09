@@ -19,7 +19,10 @@ export const content = {
   },
 } as const;
 
-export const builtOn = ["Panta API", "Solana", "Phantom", "Chrome MV3", "X"] as const;
+export const trust = {
+  line: "Reads x.com in Chrome. Markets and quotes from Panta. Signing in Phantom on Solana.",
+  note: "Prices in previews on this page are illustrative. A live chip only shows what the Panta API returned.",
+} as const;
 
 export const problem = {
   eyebrow: "The gap",
@@ -63,7 +66,6 @@ export const how = {
       body: "Click the chip. A trade window opens: pick a side, get a quote, sign with Phantom, see your position.",
     },
   ],
-  note: "Illustrative example. Live chips only show data returned by the Panta API.",
 } as const;
 
 export const matching = {
@@ -72,65 +74,72 @@ export const matching = {
   body: "One wrong chip costs more trust than ten tweets without one. Every stage can stop the pipeline, and only a clear yes shows a chip.",
   stages: [
     {
-      label: "Stage 1",
       title: "Entity prefilter",
-      body: "Tickers, names and dates in the tweet must overlap with a market in the catalog. No overlap, stop here.",
+      body: "Tickers, names and dates in the tweet must overlap with a market in the catalog.",
+      outcome: "No overlap: stop, no chip",
     },
     {
-      label: "Stage 2",
       title: "Embedding similarity",
       body: "The tweet is compared with every market title. Only the top match above the threshold moves on.",
+      outcome: "Below threshold: stop, no chip",
     },
     {
-      label: "Stage 3",
       title: "Verification",
       body: "A small model answers one question: is this the same event? Anything short of a clear yes stops.",
+      outcome: "Clear yes: chip",
     },
   ],
   rules: [
-    "Closed or resolved markets never get a chip",
-    "A missing price shows “see odds”, never a guess",
-    "Results are cached per tweet for 24 hours",
-    "Market titles come from the hydrated catalog, not empty API fields",
+    "Closed or resolved markets never get a chip.",
+    "A missing price shows “see odds”, never a guess.",
+    "Results are cached per tweet for 24 hours.",
+    "Titles come from the hydrated catalog, because many API titles are empty.",
   ],
-  targets: {
-    label: "Design targets",
-    items: [
-      { value: "≥ 80%", caption: "precision on 50 labeled tweets" },
-      { value: "< 4", caption: "clicks from chip to trade" },
-      { value: "7+", caption: "Panta API capabilities used" },
-    ],
-    note: "Targets we are building toward. Measured results are published from `pnpm eval`.",
-  },
+  targets: [
+    { value: "≥ 80%", caption: "precision on 50 labeled tweets" },
+    { value: "< 4", caption: "clicks from chip to trade" },
+  ],
+  targetsNote: "Targets we are building toward. Measured results come from pnpm eval.",
 } as const;
 
 export const trade = {
   eyebrow: "Trade",
   title: "From the chip to a position, in a few clicks.",
   body: "Trades are signed on a hosted page opened as a popup. Phantom does not inject into extension pages, so signing never happens inside the extension.",
-  steps: [
+  left: [
     { title: "Pick a side", body: "Choose YES or NO and an amount in USDC." },
-    { title: "Get a quote", body: "Sorot asks Panta for a quote before you commit." },
-    { title: "Sign in Phantom", body: "Panta builds the transaction. You review and sign it in your own wallet." },
-    { title: "Track and claim", body: "Your position shows on the positions page, with a claim button once a market resolves." },
+    {
+      title: "Get a quote",
+      body: "Panta simulates the fill and the fee. A quote lives for about 90 seconds, so the popup counts it down.",
+    },
+  ],
+  right: [
+    {
+      title: "Sign in Phantom",
+      body: "Panta builds the instructions, you review and sign in your own wallet, and the signature is sent to Panta.",
+    },
+    {
+      title: "Track and claim",
+      body: "Your position shows on the positions page, with a claim button once a market resolves.",
+    },
   ],
 } as const;
 
 export const features = {
   eyebrow: "Features",
   title: "Everything the argument needs.",
+  flagship: {
+    title: "Odds chip",
+    body: "Market title, YES and NO odds, and a “Powered by Panta” label, right under the tweet. When a price is missing, the chip says “see odds” instead of guessing.",
+  },
   items: [
-    {
-      title: "Odds chip",
-      body: "Market title, YES and NO odds, and a “Powered by Panta” label, right under the tweet.",
-    },
     {
       title: "Verified matches",
       body: "A three-stage pipeline with a labeled evaluation set. Precision is measured, not assumed.",
     },
     {
       title: "Trade from the tweet",
-      body: "Quote, build, sign and confirm from a popup opened by the chip.",
+      body: "Quote, sign and confirm from a popup opened by the chip.",
     },
     {
       title: "Positions and claims",
@@ -138,7 +147,7 @@ export const features = {
     },
     {
       title: "Trade attribution",
-      body: "Every trade is attributed to Sorot through the Panta API.",
+      body: "Every trade is reported to Panta with Sorot's attribution id.",
     },
     {
       title: "Read-only mode",
@@ -152,14 +161,19 @@ export const security = {
   eyebrow: "Security",
   title: "Built so you do not have to trust us with keys.",
   body: "The extension only reads tweets and draws chips. Everything sensitive lives somewhere else, on purpose.",
+  flow: [
+    { name: "Extension", role: "Reads tweets, draws chips. Holds no keys." },
+    { name: "Sorot backend", role: "Holds the Panta key. Proxies an allowlist of routes." },
+    { name: "Phantom", role: "Signs every transaction on the hosted trade page." },
+  ],
   items: [
     {
       title: "Panta key stays on the server",
-      body: "The browser talks to Sorot's backend, which proxies an allowlist of Panta routes. The key never ships in the extension.",
+      body: "The browser talks to Sorot's backend. The key never ships in the extension, and a build check greps the bundle for it.",
     },
     {
       title: "No wallet keys, ever",
-      body: "Sorot never stores keys or seed phrases. Signing happens in Phantom on the hosted trade page.",
+      body: "Sorot never stores keys or seed phrases. You approve each transaction in Phantom.",
     },
     {
       title: "Minimal permissions",
@@ -175,28 +189,32 @@ export const security = {
 export const pantaApi = {
   eyebrow: "Panta API",
   title: "Panta, end to end.",
-  body: "Sorot uses the catalog, market detail, trades, quotes, transaction building, positions, claims and attribution.",
+  body: "Sorot uses the catalog, quotes, transaction building, signature submission, verification, positions, claims and trade reporting.",
   rows: [
     { route: "GET /markets/", use: "Catalog sync" },
     { route: "GET /markets/{id}/", use: "Chip odds and market detail" },
-    { route: "GET /markets/{id}/trades/", use: "Recent activity on the trade page" },
-    { route: "POST /primaryorderquote/", use: "Quote before buying" },
-    { route: "POST /primaryorderbuild/", use: "Transaction to sign" },
-    { route: "GET /positions/?wallet=", use: "Positions and claim status" },
-    { route: "Claim build", use: "Claim winnings" },
-    { route: "Trade attribution", use: "Every trade attributed to Sorot" },
+    { route: "POST /primaryorderquote/", use: "Quote, valid for about 90 seconds" },
+    { route: "POST /primaryorderbuild/", use: "Instructions to sign, with slippage limit" },
+    { route: "POST /primaryordersubmit/", use: "Register the signature" },
+    { route: "POST /primaryorderverify/", use: "Check the trade status" },
+    { route: "GET /positions/?wallet=", use: "Positions and claimable flag" },
+    { route: "POST /claim/build/", use: "Instructions to claim winnings" },
+    { route: "POST /trades/", use: "Report a trade for attribution" },
   ],
 } as const;
 
 export const install = {
   eyebrow: "Install",
   title: "Add Sorot to Chrome.",
-  body: "Works in Chrome and Chromium browsers. A packaged release and store listing are on the way. Until then, build it from source in four steps.",
+  body: "Works in Chrome and Chromium browsers. A packaged release and a store listing are on the way. Until then, build it from source.",
+  commands: [
+    { label: "Install dependencies", code: "pnpm install" },
+    { label: "Build the extension", code: "pnpm --filter extension build" },
+  ],
   steps: [
-    { title: "Clone and install", code: "pnpm install" },
-    { title: "Build the extension", code: "pnpm --filter extension build" },
-    { title: "Load unpacked", code: "chrome://extensions → Developer mode → Load unpacked → extension/dist" },
-    { title: "Open x.com", code: "Chips appear under matching tweets" },
+    "Open chrome://extensions and turn on Developer mode.",
+    "Choose Load unpacked and select the extension/dist folder.",
+    "Open x.com. Chips appear under tweets that match a Panta market.",
   ],
 } as const;
 
@@ -250,6 +268,7 @@ export const footer = {
     { label: "Matching", href: "#matching" },
     { label: "Security", href: "#security" },
     { label: "Install", href: "#install" },
+    { label: "Positions", href: "/positions" },
     { label: "Panta docs", href: "https://docs.panta.market" },
   ],
 } as const;

@@ -21,6 +21,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <noscript>
           <style>{".reveal{opacity:1;transform:none}"}</style>
         </noscript>
+        <a
+          href="#content"
+          className="sr-only z-50 rounded-full bg-ink px-5 py-3 text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        >
+          Skip to content
+        </a>
         {children}
       </body>
     </html>

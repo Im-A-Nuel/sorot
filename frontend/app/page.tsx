@@ -13,7 +13,7 @@ import { TrustBar } from "@/components/sections/TrustBar";
 
 export default function Page() {
   return (
-    <main>
+    <main id="content">
       <Hero />
       <div className="relative -mt-8 overflow-hidden rounded-t-[36px] bg-[#eef0fd] md:-mt-12 md:rounded-t-[56px]">
         <div aria-hidden="true" className="page-glow" />

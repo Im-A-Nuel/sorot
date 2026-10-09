@@ -11,28 +11,35 @@ export function HowItWorks() {
           <SectionHeading eyebrow={how.eyebrow} title={how.title} body={how.body} />
         </Reveal>
 
-        <div className="mt-14 grid items-start gap-12 lg:grid-cols-[1fr_470px] lg:gap-16">
-          <ol className="relative flex flex-col gap-4">
+        <div className="mt-14 grid items-start gap-12 lg:grid-cols-[470px_1fr] lg:gap-20">
+          <Reveal className="lg:sticky lg:top-8">
+            <TweetPreview />
+          </Reveal>
+
+          <ol className="lg:pt-3">
             {how.steps.map((step, i) => (
-              <li key={step.title}>
-                <Reveal delay={i * 80}>
-                  <div className="card flex gap-5 p-6">
-                    <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#5b69f0,#1626f0)] text-[15px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(22,38,240,0.7)]">
-                      {i + 1}
-                    </span>
-                    <div>
-                      <h3 className="text-[20px] font-semibold tracking-[-0.015em]">{step.title}</h3>
-                      <p className="mt-1.5 text-[15px] leading-relaxed text-ink/65">{step.body}</p>
-                    </div>
-                  </div>
-                </Reveal>
+              <li
+                key={step.title}
+                className="relative grid grid-cols-[3rem_1fr] gap-4 pb-10 last:pb-0"
+              >
+                {i < how.steps.length - 1 && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute left-[1.05rem] top-9 h-[calc(100%-2.25rem)] w-px bg-ink/20"
+                  />
+                )}
+                <span className="relative flex size-9 items-center justify-center rounded-full bg-ink text-[14px] font-semibold text-white">
+                  {i + 1}
+                </span>
+                <div>
+                  <h3 className="text-[22px] font-semibold tracking-[-0.02em]">{step.title}</h3>
+                  <p className="mt-2 max-w-[460px] text-[15.5px] leading-relaxed text-muted">
+                    {step.body}
+                  </p>
+                </div>
               </li>
             ))}
           </ol>
-
-          <Reveal delay={120} className="lg:sticky lg:top-8">
-            <TweetPreview />
-          </Reveal>
         </div>
       </div>
     </section>

@@ -4,7 +4,16 @@
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --color-ink: #0b0f1a;
+  --color-base: #eef0fd;
   --color-brand-blue: #1626f0;
+  --color-muted: #4f5563;
+  --color-subtle: #5f6573;
+  --color-ondark: #aab0c2;
+  --color-ondark-subtle: #8f96aa;
+  --color-danger: #b3261e;
+  --color-danger-bg: #fdecea;
+  --color-success: #0b6b3f;
+  --color-success-bg: #e6f5ec;
 }
 
 html {
@@ -13,7 +22,7 @@ html {
 
 html,
 body {
-  background: #eef0fd;
+  background: var(--color-base);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -30,17 +39,25 @@ body {
   }
 }
 
-/* Frosted surface used by every content card. */
-.card {
+/* Visible keyboard focus everywhere. Mouse clicks do not show it. */
+:focus-visible {
+  outline: 2px solid var(--color-brand-blue);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.on-dark :focus-visible,
+.on-blue :focus-visible {
+  outline-color: #ffffff;
+}
+
+/* A real UI surface: tweet mock, popup mock, trade card. Solid, no blur. */
+.surface {
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(11, 15, 26, 0.08);
   border-radius: 28px;
-  background: rgba(255, 255, 255, 0.66);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.9) inset,
-    0 24px 60px -30px rgba(40, 50, 160, 0.4);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 1px 2px rgba(11, 15, 26, 0.04);
 }
 
 /* Soft blue haze behind the post-hero sections, echoing the hero backdrop. */
@@ -67,15 +84,27 @@ body {
 
 .reveal {
   opacity: 0;
-  transform: translateY(18px);
+  transform: translateY(14px);
   transition:
-    opacity 0.7s ease,
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.6s ease,
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .reveal.is-in {
   opacity: 1;
   transform: none;
+}
+
+@keyframes sk-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.skeleton {
+  border-radius: 12px;
+  background: rgba(11, 15, 26, 0.09);
+  animation: sk-pulse 1.4s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -87,5 +116,9 @@ body {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .skeleton {
+    animation: none;
   }
 }

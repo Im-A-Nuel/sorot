@@ -2,15 +2,8 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-export function Reveal({
-  children,
-  delay = 0,
-  className = "",
-}: {
-  children: ReactNode;
-  delay?: number;
-  className?: string;
-}) {
+/** One fade on a section heading or key visual. Not for every block. */
+export function Reveal({ children, className = "" }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(false);
 
@@ -35,11 +28,7 @@ export function Reveal({
   }, []);
 
   return (
-    <div
-      ref={ref}
-      className={`reveal ${shown ? "is-in" : ""} ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
+    <div ref={ref} className={`reveal ${shown ? "is-in" : ""} ${className}`}>
       {children}
     </div>
   );

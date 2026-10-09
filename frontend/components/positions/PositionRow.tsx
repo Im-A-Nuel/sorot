@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ApiError, api, formatDecimal, isMockApi, type Position } from "@/lib/api";
+import { ApiError, api, formatDecimal, type Position } from "@/lib/api";
+import { useDemo } from "@/lib/api/use-demo";
 import { errorCopy, toApiError } from "@/lib/trade/errors";
 import { approveInWallet } from "@/lib/wallet/phantom";
 import { Button } from "@/components/ui/Button";
@@ -42,6 +43,7 @@ type Props = {
 };
 
 export function PositionRow({ position, wallet, onClaimed }: Props) {
+  const demo = useDemo();
   const [claim, setClaim] = useState<ClaimState>({ phase: "idle" });
   const busy = claim.phase !== "idle" && claim.phase !== "error";
 
@@ -50,7 +52,12 @@ export function PositionRow({ position, wallet, onClaimed }: Props) {
     try {
       const built = await api.claimBuild({ wallet, marketId: position.marketId });
       setClaim({ phase: "approving" });
-      const signature = await approveInWallet(`claim ${position.marketTitle}`, isMockApi);
+      const signature = await approveInWallet({
+        label: `claim ${position.marketTitle}`,
+        demo: demo !== false,
+        built,
+        wallet,
+      });
       setClaim({ phase: "sending" });
       await api.submit({
         signature,

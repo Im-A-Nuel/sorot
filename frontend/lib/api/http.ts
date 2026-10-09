@@ -1,9 +1,6 @@
 import { ApiError, type ApiErrorCode, type SorotApi } from "./types";
 
-/**
- * Client for the Sorot backend. The contract is defined in docs/SCHEMA.md and the backend is not built yet,
- * so this is only used when NEXT_PUBLIC_API_URL is set.
- */
+/** Client for the Sorot API (the route handlers under /api). Contract: docs/SCHEMA.md. */
 
 const KNOWN_CODES: ApiErrorCode[] = [
   "INVALID_PARAMS",
@@ -17,12 +14,19 @@ const KNOWN_CODES: ApiErrorCode[] = [
   "TX_FAILED",
 ];
 
+/** `?sim=rate-limit` on a page URL asks the server to simulate a failure. The server ignores it in production. */
+function simHeader(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  const sim = new URLSearchParams(window.location.search).get("sim");
+  return sim && /^[a-z-]{1,24}$/.test(sim) ? { "x-sorot-sim": sim } : {};
+}
+
 async function request<T>(base: string, path: string, init?: RequestInit): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`${base}${path}`, {
       ...init,
-      headers: { "content-type": "application/json", ...init?.headers },
+      headers: { "content-type": "application/json", ...simHeader(), ...init?.headers },
     });
   } catch {
     throw new ApiError("NETWORK", "Could not reach Sorot. Check your connection.");
@@ -48,6 +52,7 @@ export function createHttpApi(base: string): SorotApi {
     request<T>(base, path, { method: "POST", body: JSON.stringify(body) });
 
   return {
+    meta: async () => ({ demo: (await get<{ demo: boolean }>("/health")).demo }),
     getMarket: (id) => get(`/markets/${encodeURIComponent(id)}`),
     recentTrades: (id) => get(`/markets/${encodeURIComponent(id)}/trades`),
     quote: (req) => post("/trade/quote", req),

@@ -12,3 +12,4 @@ export * from "./match/embedding.ts";
 export * from "./match/entities.ts";
 export * from "./match/pipeline.ts";
 export * from "./match/verify.ts";
+export * from "./runtime.ts";

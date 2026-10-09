@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiError } from "@/lib/api/types";
+import { ApiError, type BuiltTransaction } from "@/lib/api/types";
 
 /**
  * Minimal Phantom integration through the injected provider. No private keys are ever read or stored here.
@@ -16,6 +16,7 @@ export type PhantomProvider = {
   connect(opts?: { onlyIfTrusted?: boolean }): Promise<{ publicKey: PublicKeyLike }>;
   disconnect(): Promise<void>;
   signMessage?(message: Uint8Array, display?: "utf8" | "hex"): Promise<{ signature: Uint8Array }>;
+  signAndSendTransaction?(transaction: unknown): Promise<{ signature: string }>;
   on?(event: string, handler: (...args: unknown[]) => void): void;
   off?(event: string, handler: (...args: unknown[]) => void): void;
 };
@@ -142,26 +143,87 @@ export function usePhantom(): WalletState {
   return { status, address, error, connect, disconnect };
 }
 
+type PantaInstruction = {
+  programId: string;
+  data: string;
+  accounts: { pubkey: string; isSigner: boolean; isWritable: boolean }[];
+};
+
+function isInstruction(v: unknown): v is PantaInstruction {
+  const o = v as PantaInstruction;
+  return (
+    typeof o === "object" &&
+    o !== null &&
+    typeof o.programId === "string" &&
+    typeof o.data === "string" &&
+    Array.isArray(o.accounts)
+  );
+}
+
+function fromBase64(b64: string): Uint8Array {
+  const raw = atob(b64);
+  return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+}
+
 /**
- * Asks the wallet to approve an action.
- * Demo mode signs a harmless text message so the real Phantom prompt and its rejection path can be tried.
- * Real mode needs the Panta instructions compiled into a transaction. TODO(backend): wire signAndSendTransaction with @solana/web3.js.
+ * Compiles Panta's instructions into a versioned transaction and has Phantom sign and send it.
+ * UNVERIFIED against live Panta: the instruction shape follows the Panta docs, but it has not run with a real key.
  */
-export async function approveInWallet(label: string, demo: boolean): Promise<string> {
+async function signAndSendLive(p: PhantomProvider, built: BuiltTransaction, wallet: string): Promise<string> {
+  if (!p.signAndSendTransaction) {
+    throw new ApiError("UNKNOWN", "This Phantom version cannot send transactions.");
+  }
+  if (!built.instructions.every(isInstruction)) {
+    throw new ApiError("UNKNOWN", "Panta returned instructions in an unexpected format.");
+  }
+
+  const web3 = await import("@solana/web3.js");
+  const payer = new web3.PublicKey(wallet);
+  const instructions = built.instructions.map(
+    (i) =>
+      new web3.TransactionInstruction({
+        programId: new web3.PublicKey(i.programId),
+        keys: i.accounts.map((a) => ({
+          pubkey: new web3.PublicKey(a.pubkey),
+          isSigner: a.isSigner,
+          isWritable: a.isWritable,
+        })),
+        data: fromBase64(i.data) as unknown as Buffer,
+      }),
+  );
+  const message = new web3.TransactionMessage({
+    payerKey: payer,
+    recentBlockhash: built.recentBlockhash,
+    instructions,
+  }).compileToV0Message();
+
+  const { signature } = await p.signAndSendTransaction(new web3.VersionedTransaction(message));
+  return signature;
+}
+
+/**
+ * Asks the wallet to approve an action and returns the signature.
+ * Demo mode signs a harmless text message, so the real Phantom prompt and its rejection path can be tried without funds.
+ * Live mode signs and sends the transaction built from Panta's instructions.
+ */
+export async function approveInWallet(opts: {
+  label: string;
+  demo: boolean;
+  built: BuiltTransaction;
+  wallet: string;
+}): Promise<string> {
   const p = getPhantom();
   if (!p) throw new ApiError("UNKNOWN", "Phantom is not available.");
 
-  if (!demo) {
-    throw new ApiError("UNKNOWN", "Transaction signing is not connected to the backend yet.");
-  }
-
   try {
+    if (!opts.demo) return await signAndSendLive(p, opts.built, opts.wallet);
     if (p.signMessage) {
-      await p.signMessage(new TextEncoder().encode(`Sorot demo: ${label}`), "utf8");
+      await p.signMessage(new TextEncoder().encode(`Sorot demo: ${opts.label}`), "utf8");
     }
   } catch (err) {
     if (isRejected(err)) throw new ApiError("USER_REJECTED", "You declined the request in Phantom.");
-    throw new ApiError("UNKNOWN", "Phantom could not sign the request.");
+    if (err instanceof ApiError) throw err;
+    throw new ApiError("UNKNOWN", "Phantom could not complete the request.");
   }
   return `demo-${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`;
 }

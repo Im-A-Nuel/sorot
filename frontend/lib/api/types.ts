@@ -12,6 +12,8 @@ export type Market = {
   yesPrice: string | null;
   noPrice: string | null;
   url: string;
+  /** True when the data comes from built-in fixtures instead of Panta. */
+  demo?: boolean;
 };
 
 export type Quote = {
@@ -99,10 +101,12 @@ export type SubmitRequest = {
 };
 
 export interface SorotApi {
+  /** Tells the UI whether the backend is serving demo data. */
+  meta(): Promise<{ demo: boolean }>;
   getMarket(id: string): Promise<Market>;
   recentTrades(marketId: string): Promise<RecentTrade[]>;
   quote(req: QuoteRequest): Promise<Quote>;
-  build(req: { quoteId: string; maxSlippageBps: number }): Promise<BuiltTransaction>;
+  build(req: { quoteId: string; maxSlippageBps: number; wallet: string }): Promise<BuiltTransaction>;
   submit(req: SubmitRequest): Promise<void>;
   verify(signature: string): Promise<TradeStatus>;
   positions(wallet: string): Promise<Position[]>;

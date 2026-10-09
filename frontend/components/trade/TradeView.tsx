@@ -7,13 +7,13 @@ import {
   api,
   checkAmount,
   formatDecimal,
-  isMockApi,
   type Market,
   type Quote,
   type Side,
 } from "@/lib/api";
 import { errorCopy, toApiError } from "@/lib/trade/errors";
 import { useNow } from "@/lib/use-now";
+import { useDemo } from "@/lib/api/use-demo";
 import { approveInWallet, usePhantom } from "@/lib/wallet/phantom";
 import { AppShell } from "@/components/app/AppShell";
 import { DemoBanner } from "@/components/app/DemoBanner";
@@ -129,6 +129,7 @@ type MarketState =
 
 export function TradeView({ marketId, tweetId, initialSide = "yes" }: Props) {
   const wallet = usePhantom();
+  const demo = useDemo();
   const [marketState, setMarketState] = useState<MarketState>({ status: "loading" });
   const [state, dispatch] = useReducer(reducer, {
     phase: "form",
@@ -203,11 +204,17 @@ export function TradeView({ marketId, tweetId, initialSide = "yes" }: Props) {
     let step = 1;
     dispatch({ type: "approveStart" });
     try {
-      await api.build({ quoteId: quote.quoteId, maxSlippageBps: quote.maxSlippageBps });
-      const signature = await approveInWallet(
-        `${state.side} ${quote.amountUsdc} USDC on ${marketId}`,
-        isMockApi,
-      );
+      const built = await api.build({
+        quoteId: quote.quoteId,
+        maxSlippageBps: quote.maxSlippageBps,
+        wallet: wallet.address,
+      });
+      const signature = await approveInWallet({
+        label: `${state.side} ${quote.amountUsdc} USDC on ${marketId}`,
+        demo: demo !== false,
+        built,
+        wallet: wallet.address,
+      });
       step = 2;
       dispatch({ type: "sendStart" });
       await api.submit({ signature, wallet: wallet.address, marketId, quoteId: quote.quoteId });
@@ -286,7 +293,7 @@ export function TradeView({ marketId, tweetId, initialSide = "yes" }: Props) {
   const status = STATUS_TEXT[state.phase];
 
   const explorer =
-    state.signature && !isMockApi ? `https://solscan.io/tx/${state.signature}` : null;
+    state.signature && demo === false ? `https://solscan.io/tx/${state.signature}` : null;
 
   function renderAction() {
     if (wallet.status === "checking") {
@@ -440,7 +447,7 @@ export function TradeView({ marketId, tweetId, initialSide = "yes" }: Props) {
       )}
 
       {state.phase === "done" && state.quote && (
-        <Notice tone="success" title={isMockApi ? "Demo trade confirmed" : "Trade confirmed"} innerRef={doneRef}>
+        <Notice tone="success" title={demo ? "Demo trade confirmed" : "Trade confirmed"} innerRef={doneRef}>
           <dl className="mt-2 space-y-1.5">
             <div className="flex justify-between gap-4">
               <dt>Side</dt>

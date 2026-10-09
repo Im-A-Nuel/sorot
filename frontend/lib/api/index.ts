@@ -1,13 +1,10 @@
 import { createHttpApi } from "./http";
-import { mockApi } from "./mock";
 import type { SorotApi } from "./types";
 
-const base = process.env.NEXT_PUBLIC_API_URL;
+/** Same-origin by default. The API lives in this app under /api. */
+const base = process.env.NEXT_PUBLIC_API_URL || "/api";
 
-/** True while the UI runs on fixtures. Pages show a "Demo data" banner in this mode. */
-export const isMockApi = !base;
-
-export const api: SorotApi = base ? createHttpApi(base) : mockApi;
+export const api: SorotApi = createHttpApi(base);
 
 export * from "./types";
 export * from "./money";

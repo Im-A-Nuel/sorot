@@ -3,6 +3,7 @@ import { Faq } from "@/components/sections/Faq";
 import { Features } from "@/components/sections/Features";
 import { Footer } from "@/components/sections/Footer";
 import { HowItWorks } from "@/components/sections/HowItWorks";
+import { Journey } from "@/components/sections/Journey";
 import { Install } from "@/components/sections/Install";
 import { Matching } from "@/components/sections/Matching";
 import { PantaApi } from "@/components/sections/PantaApi";
@@ -20,6 +21,7 @@ export default function Page() {
         <div className="grain" aria-hidden="true" />
         <div className="relative">
           <TrustBar />
+          <Journey />
           <Problem />
           <HowItWorks />
           <Matching />

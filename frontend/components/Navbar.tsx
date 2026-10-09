@@ -16,7 +16,7 @@ export function Navbar() {
         ))}
       </nav>
 
-      <MobileMenu items={content.nav} />
+      <MobileMenu items={[...content.nav, ...content.mobileExtras]} />
 
       <a
         href="#top"
@@ -27,6 +27,11 @@ export function Navbar() {
       </a>
 
       <div className="ml-auto mt-[calc(4*var(--u))] flex items-center gap-[calc(19*var(--u))] text-[max(12px,calc(12.5*var(--u)))] font-medium">
+        {content.appLinks.map((link) => (
+          <a key={link.label} href={link.href} className="hidden py-3 sm:inline">
+            {link.label}
+          </a>
+        ))}
         <a href={content.secondaryLink.href} className="hidden py-3 sm:inline">
           {content.secondaryLink.label}
         </a>

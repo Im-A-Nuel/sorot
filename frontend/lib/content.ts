@@ -7,11 +7,17 @@ export const content = {
     { label: "Panta API", href: "#panta" },
   ],
   secondaryLink: { label: "FAQ", href: "#faq" },
+  appLinks: [{ label: "Positions", href: "/positions" }],
+  mobileExtras: [
+    { label: "Try the demo", href: "/t/demo-sol-300" },
+    { label: "Positions", href: "/positions" },
+  ],
   primaryLink: { label: "Install guide", href: "#install" },
   headline: ["See the odds,", "trade the take."],
   subtitle:
     "Sorot puts Panta odds right under the tweets people argue about. Click the chip, get a quote, and sign with Phantom in a small popup.",
   cta: { label: "Install guide", href: "#install" },
+  secondaryCta: { label: "Try the demo", href: "/t/demo-sol-300" },
   // Illustrative hero preview only. Live chips never show numbers that did not come from the Panta API.
   cards: {
     a: { name: "SOL > $300", symbol: "by Oct 31", price: "YES 0.62", change: "NO 0.38" },
@@ -24,6 +30,33 @@ export const trust = {
   status:
     "Early build. The extension, trade page and positions page run on demo data. Live matching and mainnet trading connect when the backend ships.",
   note: "Prices in previews on this page are illustrative. A live chip only shows what the Panta API returned.",
+} as const;
+
+export const journey = {
+  eyebrow: "Your path",
+  title: "From install to your first position.",
+  body: "There is no sign-up and no account. Your Phantom wallet is your login, and Sorot only asks for it on the trade page and the positions page.",
+  steps: [
+    {
+      title: "Install the extension",
+      body: "Build it from source for now. It adds a small chip under matching tweets on x.com.",
+      link: { label: "Install guide", href: "#install" },
+    },
+    {
+      title: "Use X as usual",
+      body: "Scroll. When a tweet matches a Panta market, odds appear under it. Tweets without a match stay untouched.",
+    },
+    {
+      title: "Click the chip to trade",
+      body: "A trade window opens. This is where you connect Phantom, pick YES or NO, get a quote and approve it.",
+      link: { label: "Try the demo trade", href: "/t/demo-sol-300" },
+    },
+    {
+      title: "Check your positions",
+      body: "The positions page lists what you hold and lets you claim winnings. It is linked from the trade window, the extension popup and this site.",
+      link: { label: "Open positions (demo)", href: "/positions" },
+    },
+  ],
 } as const;
 
 export const problem = {
@@ -236,6 +269,14 @@ export const faq = {
     {
       q: "What works today?",
       a: "The extension, the trade page and the positions page are built and run on demo data. Live matching, Panta quotes and mainnet signing connect when the backend ships. Nothing in the current build moves real money.",
+    },
+    {
+      q: "Where do I connect my wallet?",
+      a: "On the trade page, the first time you trade, and on the positions page. There is no sign-up and no account, so the wallet is the only thing you connect. You can also use the Connect Phantom button in the header of either page.",
+    },
+    {
+      q: "Where do I see my positions?",
+      a: "On the positions page. It is linked from the header of the trade window, from the extension popup, and from the navigation on this site.",
     },
     {
       q: "Does Sorot hold my funds or keys?",

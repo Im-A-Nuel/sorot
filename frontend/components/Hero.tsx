@@ -5,24 +5,6 @@ import { Navbar } from "./Navbar";
 import { PhoneMockup } from "./PhoneMockup";
 import { Wordmark } from "./Wordmark";
 
-function ArrowIcon() {
-  return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="#fff"
-      strokeWidth="1.3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M2.5 13.5 13 3M6.2 3H13v6.8" />
-    </svg>
-  );
-}
-
 export function Hero() {
   return (
     <section
@@ -58,7 +40,7 @@ export function Hero() {
           {content.subtitle}
         </p>
 
-        <div className="flex items-center" style={{ marginTop: u(29), gap: 2 }}>
+        <div className="flex items-center" style={{ marginTop: u(29), gap: 8 }}>
           <a
             href={content.cta.href}
             className="flex items-center justify-center rounded-full bg-[#050608] text-white"
@@ -72,12 +54,16 @@ export function Hero() {
             {content.cta.label}
           </a>
           <a
-            href="#"
-            aria-label={content.cta.label}
-            className="flex items-center justify-center rounded-full bg-[#050608]"
-            style={{ height: `max(38px, ${u(36)})`, width: `max(56px, ${u(54)})` }}
+            href={content.secondaryCta.href}
+            className="flex items-center justify-center rounded-full border border-ink/25 bg-white/80 text-ink"
+            style={{
+              height: `max(38px, ${u(36)})`,
+              width: `max(112px, ${u(108)})`,
+              fontWeight: 450,
+              fontSize: `max(13px, ${u(12.5)})`,
+            }}
           >
-            <ArrowIcon />
+            {content.secondaryCta.label}
           </a>
         </div>
       </div>

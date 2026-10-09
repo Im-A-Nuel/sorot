@@ -9,6 +9,8 @@
     "test": "pnpm -r --if-present test",
     "eval": "pnpm --filter @sorot/core eval",
     "db:generate": "pnpm --filter frontend db:generate",
-    "db:migrate": "pnpm --filter frontend db:migrate"
+    "db:migrate": "pnpm --filter frontend db:migrate",
+    "panta:setup": "pnpm --filter @sorot/core panta:setup",
+    "panta:probe": "pnpm --filter @sorot/core probe"
   }
 }

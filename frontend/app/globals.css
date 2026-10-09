@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --color-ink: #0b0f1a;
+  --color-brand-blue: #1626f0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  background: #eef0fd;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 1 design unit = 1px on the 1080px reference frame; phones zoom the visual stage in. */
+.hero {
+  --u: calc(100cqw / 1080);
+}
+
+@media (max-width: 767px) {
+  .hero {
+    --u: calc(100cqw / 620);
+  }
+}
+
+/* Frosted surface used by every content card. */
+.card {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.66);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 24px 60px -30px rgba(40, 50, 160, 0.4);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+/* Soft blue haze behind the post-hero sections, echoing the hero backdrop. */
+.page-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 38% 7% at 0% 9%, rgba(126, 146, 247, 0.55), transparent 100%),
+    radial-gradient(ellipse 34% 6% at 100% 24%, rgba(126, 146, 247, 0.45), transparent 100%),
+    radial-gradient(ellipse 40% 6% at 0% 62%, rgba(126, 146, 247, 0.4), transparent 100%),
+    radial-gradient(ellipse 36% 6% at 100% 80%, rgba(126, 146, 247, 0.45), transparent 100%);
+}
+
+/* Film grain, same texture as the hero backdrop. */
+.grain {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1.6 -0.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

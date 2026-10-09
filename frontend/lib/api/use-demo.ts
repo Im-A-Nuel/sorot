@@ -3,28 +3,33 @@
 import { useEffect, useState } from "react";
 import { api } from "./index";
 
-let cached: Promise<boolean | null> | null = null;
+type Meta = { demo: boolean; source: "live" | "sandbox" | "fixture" };
 
-function loadDemo(): Promise<boolean | null> {
-  cached ??= api
-    .meta()
-    .then((m) => m.demo)
-    .catch(() => {
-      cached = null;
-      return null;
-    });
+let cached: Promise<Meta | null> | null = null;
+
+function loadMeta(): Promise<Meta | null> {
+  cached ??= api.meta().catch(() => {
+    cached = null;
+    return null;
+  });
   return cached;
 }
 
-/** True while the backend serves demo data, false when it is live, null until known. */
-export function useDemo(): boolean | null {
-  const [demo, setDemo] = useState<boolean | null>(null);
+/** Which data the backend serves. Null until known, or when the health check failed. */
+export function useMeta(): Meta | null {
+  const [meta, setMeta] = useState<Meta | null>(null);
   useEffect(() => {
     let cancelled = false;
-    loadDemo().then((value) => !cancelled && setDemo(value));
+    loadMeta().then((value) => !cancelled && setMeta(value));
     return () => {
       cancelled = true;
     };
   }, []);
-  return demo;
+  return meta;
+}
+
+/** True while the backend serves demo data, false when it is live, null until known. */
+export function useDemo(): boolean | null {
+  const meta = useMeta();
+  return meta ? meta.demo : null;
 }

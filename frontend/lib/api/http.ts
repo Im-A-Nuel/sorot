@@ -52,7 +52,10 @@ export function createHttpApi(base: string): SorotApi {
     request<T>(base, path, { method: "POST", body: JSON.stringify(body) });
 
   return {
-    meta: async () => ({ demo: (await get<{ demo: boolean }>("/health")).demo }),
+    meta: async () => {
+      const h = await get<{ demo: boolean; panta: "live" | "sandbox" | "fixture" }>("/health");
+      return { demo: h.demo, source: h.panta };
+    },
     getMarket: (id) => get(`/markets/${encodeURIComponent(id)}`),
     recentTrades: (id) => get(`/markets/${encodeURIComponent(id)}/trades`),
     quote: (req) => post("/trade/quote", req),

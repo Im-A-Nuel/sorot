@@ -1,3 +1,4 @@
+import { fromMicro, toMicro } from "../money.ts";
 import { MARKET_ID_RE } from "../types.ts";
 import type {
   BuiltTransaction,
@@ -13,8 +14,9 @@ import type {
 
 /**
  * Panta responses are normalized here, in one place.
- * UNVERIFIED: the field names below are inferred from the docs and public integrations.
- * Run `pnpm --filter @sorot/core probe` with a real key and adjust this file if a field is named differently.
+ * Checked against real responses from the Panta sandbox (pk_test_) on 2026-10-09: catalog, market detail, trades,
+ * positions, quote, build, verify and claim build. Still unverified: a live (pk_live_) catalog with several markets,
+ * non-empty positions and trades, and the submit and report routes.
  */
 
 type Obj = Record<string, unknown>;
@@ -50,13 +52,24 @@ export function nextCursor(raw: unknown): string | null {
   return typeof next === "string" && next !== "" ? next : null;
 }
 
-function marketStatus(v: unknown): MarketStatus {
-  const s = String(v ?? "").toLowerCase();
-  if (["resolved", "settled", "finalized", "claimable"].includes(s)) return "resolved";
-  if (["closed", "ended", "expired", "cancelled", "canceled", "paused", "suspended"].includes(s)) return "closed";
-  if (["open", "active", "live", "trading"].includes(s)) return "open";
-  // An unknown status is never treated as tradable.
-  return "closed";
+/**
+ * Panta reports a market phase: primary, secondary, resolved or cancelled. Sorot buys through primary orders only,
+ * so only a primary-phase market that has not ended counts as open. Anything unclear is closed, never tradable.
+ */
+function marketStatus(raw: Obj, now: number): MarketStatus {
+  const phase = String(pick(raw, "phase") ?? "").toLowerCase();
+  const label = String(pick(raw, "status", "state") ?? "").toLowerCase();
+
+  if (raw.resolved === true || phase === "resolved" || ["resolved", "settled", "finalized", "claimable"].includes(label)) {
+    return "resolved";
+  }
+  if (["cancelled", "canceled", "secondary"].includes(phase)) return "closed";
+  if (["closed", "ended", "expired", "cancelled", "canceled", "paused", "suspended"].includes(label)) return "closed";
+
+  const end = toMs(pick(raw, "endTime", "end_time"), Number.NaN);
+  if (Number.isFinite(end) && end < now) return "closed";
+
+  return phase === "primary" || ["open", "active", "live", "trading", "primary"].includes(label) ? "open" : "closed";
 }
 
 export function normalizeMarket(raw: unknown, now: number, publicBase = "https://panta.market"): CatalogMarket | null {
@@ -73,7 +86,7 @@ export function normalizeMarket(raw: unknown, now: number, publicBase = "https:/
     titleRaw,
     title: titleRaw ?? "",
     category: str(pick(raw, "category", "tag")),
-    status: marketStatus(pick(raw, "status", "state")),
+    status: marketStatus(raw, now),
     yesPrice: decimal(pick(raw, "yesPrice", "yes_price") ?? prices.yes),
     noPrice: decimal(pick(raw, "noPrice", "no_price") ?? prices.no),
     volumeUsdc: decimal(pick(raw, "volumeUsdc", "volume_usdc", "volume")),
@@ -101,17 +114,31 @@ export function normalizeQuote(
   const o = isObj(raw) ? raw : {};
   const quoteId = str(pick(o, "quoteId", "quote_id", "id"));
   if (!quoteId) throw new Error("Panta quote has no quoteId");
+  const amountUsdc = decimal(pick(o, "amount", "amountUsdc")) ?? req.amountUsdc;
+  const shares = decimal(pick(o, "shares", "estimatedShares", "outShares")) ?? "0";
   return {
     quoteId,
     marketId: req.marketId,
     side: req.side,
-    amountUsdc: decimal(pick(o, "amount", "amountUsdc")) ?? req.amountUsdc,
-    shares: decimal(pick(o, "shares", "estimatedShares", "outShares")) ?? "0",
-    avgPrice: decimal(pick(o, "avgPrice", "avg_price", "price")) ?? "0",
+    amountUsdc,
+    shares,
+    // Panta does not send an average price. It is the amount paid divided by the shares received.
+    avgPrice: decimal(pick(o, "avgPrice", "avg_price", "price")) ?? averagePrice(amountUsdc, shares),
     feeUsdc: decimal(pick(o, "fee", "feeUsdc", "fee_usdc")) ?? "0",
     maxSlippageBps: req.maxSlippageBps,
     expiresAt: toMs(pick(o, "expiresAt", "expires_at", "validUntil"), now + 90_000),
   };
+}
+
+/** amount / shares as a decimal string with integer math, to four decimals and no trailing zeros past two. */
+export function averagePrice(amountUsdc: string, shares: string): string {
+  const amount = toMicro(amountUsdc);
+  const qty = toMicro(shares);
+  if (amount === null || qty === null || qty === BigInt(0)) return "0";
+  const micro = (amount * BigInt(1_000_000)) / qty;
+  const [int, frac = ""] = fromMicro(micro).split(".");
+  const trimmed = frac.slice(0, 4).replace(/0+$/, "").padEnd(2, "0");
+  return `${int}.${trimmed}`;
 }
 
 export function normalizeBuilt(raw: unknown, quoteId: string): BuiltTransaction {

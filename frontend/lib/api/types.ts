@@ -102,7 +102,7 @@ export type SubmitRequest = {
 
 export interface SorotApi {
   /** Tells the UI whether the backend is serving demo data. */
-  meta(): Promise<{ demo: boolean }>;
+  meta(): Promise<{ demo: boolean; source: "live" | "sandbox" | "fixture" }>;
   getMarket(id: string): Promise<Market>;
   recentTrades(marketId: string): Promise<RecentTrade[]>;
   quote(req: QuoteRequest): Promise<Quote>;

@@ -43,7 +43,7 @@ const CODE_MAP: Record<string, ErrorCode> = {
 };
 
 export class HttpPantaClient implements PantaClient {
-  readonly source = "live" as const;
+  readonly source: "live" | "sandbox";
 
   private cfg: HttpPantaConfig;
   private base: string;
@@ -55,6 +55,7 @@ export class HttpPantaClient implements PantaClient {
 
   constructor(cfg: HttpPantaConfig) {
     this.cfg = cfg;
+    this.source = cfg.apiKey.startsWith("pk_test_") ? "sandbox" : "live";
     this.base = (cfg.baseUrl ?? PANTA_BASE_URL).replace(/\/+$/, "");
     this.fetchImpl = cfg.fetchImpl ?? fetch;
     this.now = cfg.now ?? Date.now;

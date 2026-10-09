@@ -16,6 +16,6 @@ export const GET = route<Ctx>({ limit: { max: 120, windowMs: 60_000 } }, async (
     yesPrice: m.yesPrice,
     noPrice: m.noPrice,
     url: m.url,
-    demo: runtime.panta.source === "fixture" ? true : undefined,
+    demo: runtime.panta.source !== "live" ? true : undefined,
   };
 });

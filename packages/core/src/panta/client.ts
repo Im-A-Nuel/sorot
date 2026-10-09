@@ -10,8 +10,11 @@ import type {
 
 /** What the rest of Sorot needs from Panta. Implemented by the HTTP client and by the fixture client. */
 export interface PantaClient {
-  /** "live" talks to Panta. "fixture" is built-in demo data and is always labeled as such. */
-  readonly source: "live" | "fixture";
+  /**
+   * "live" is real Panta data (pk_live_ key). "sandbox" is Panta's test mode (pk_test_ key): fixtures that never touch mainnet.
+   * "fixture" is Sorot's built-in demo data. Everything that is not "live" is labeled demo in the UI.
+   */
+  readonly source: "live" | "sandbox" | "fixture";
   listMarkets(): Promise<CatalogMarket[]>;
   getMarket(id: string): Promise<CatalogMarket>;
   recentTrades(marketId: string): Promise<RecentTrade[]>;

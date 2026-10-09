@@ -7,7 +7,8 @@ export const GET = route({ limit: { max: 120, windowMs: 60_000 } }, async () => 
   const health = await runtime.service.health();
   return {
     ok: true,
-    demo: runtime.panta.source === "fixture",
+    // Anything that is not a live Panta key is demo data: built-in fixtures or the Panta sandbox.
+    demo: runtime.panta.source !== "live",
     ...runtime.describe(),
     database: databaseConfigured ? "postgres" : "memory",
     markets: health.markets,

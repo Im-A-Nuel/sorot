@@ -38,7 +38,7 @@ export function createService(deps: ServiceDeps) {
   const catalogTtl = deps.catalogTtlMs ?? 5 * 60_000;
   const matchTtl = deps.matchTtlMs ?? 24 * 60 * 60_000;
   const log = deps.log ?? (() => {});
-  const demo = panta.source === "fixture" ? true : undefined;
+  const demo = panta.source !== "live" ? true : undefined;
 
   let ready: Promise<void> | null = null;
   let lastIndexedAt = 0;
@@ -219,7 +219,7 @@ export function createService(deps: ServiceDeps) {
       return positions.map((p) => {
         const title = p.marketTitle === "Untitled market" ? (titles.get(p.marketId) ?? p.marketTitle) : p.marketTitle;
         // Demo claims are remembered here. Live claims are reflected by Panta itself.
-        return panta.source === "fixture" && claimed.has(p.marketId)
+        return panta.source !== "live" && claimed.has(p.marketId)
           ? { ...p, marketTitle: title, status: "claimed" as const, claimable: false }
           : { ...p, marketTitle: title };
       });

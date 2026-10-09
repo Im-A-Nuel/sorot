@@ -10,6 +10,8 @@ import type { Store } from "./store.ts";
 export type RuntimeEnv = {
   PANTA_API_BASE?: string;
   PANTA_API_KEY?: string;
+  /** Set to 1 to use the built-in demo fixtures even when a Panta key is present. */
+  PANTA_FORCE_FIXTURES?: string;
   PANTA_ATTRIBUTION_ID?: string;
   EMBEDDING_API_KEY?: string;
   EMBEDDING_MODEL?: string;
@@ -42,7 +44,7 @@ export function createRuntime(opts: {
 }) {
   const { env, store } = opts;
 
-  const panta: PantaClient = env.PANTA_API_KEY
+  const panta: PantaClient = env.PANTA_API_KEY && env.PANTA_FORCE_FIXTURES !== "1"
     ? new HttpPantaClient({
         apiKey: env.PANTA_API_KEY,
         baseUrl: env.PANTA_API_BASE || undefined,

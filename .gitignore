@@ -6,3 +6,4 @@ dist
 *.tsbuildinfo
 next-env.d.ts
 frontend/AGENTS.md
+dist-api

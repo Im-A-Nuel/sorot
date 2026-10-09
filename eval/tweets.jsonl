@@ -1,0 +1,2 @@
+{"tweetId": "example-1", "text": "Replace with a real tweet that should match a Panta market", "expectedMarketId": "TODO"}
+{"tweetId": "example-2", "text": "Replace with a real tweet that should not match anything", "expectedMarketId": null}

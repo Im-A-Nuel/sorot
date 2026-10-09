@@ -1,0 +1,8 @@
+CLAUDE.md
+node_modules
+.next
+dist
+.env
+*.tsbuildinfo
+next-env.d.ts
+frontend/AGENTS.md

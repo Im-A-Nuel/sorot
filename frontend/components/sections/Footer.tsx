@@ -1,6 +1,6 @@
 import { content, footer } from "@/lib/content";
 import { Reveal } from "@/components/ui/Reveal";
-import { ChromeIcon, ExternalIcon } from "@/components/ui/Icons";
+import { ExternalIcon } from "@/components/ui/Icons";
 import { Logo } from "@/components/Logo";
 
 export function Footer() {
@@ -29,9 +29,8 @@ export function Footer() {
               <div className="mt-9 flex flex-wrap items-center justify-center gap-2">
                 <a
                   href="#install"
-                  className="flex h-12 items-center gap-2 rounded-full bg-[#050608] px-6 text-[14.5px] font-medium text-white transition-transform hover:-translate-y-0.5"
+                  className="flex h-12 items-center rounded-full bg-[#050608] px-6 text-[14.5px] font-medium text-white transition-transform hover:-translate-y-0.5"
                 >
-                  <ChromeIcon />
                   {content.cta.label}
                 </a>
                 <a

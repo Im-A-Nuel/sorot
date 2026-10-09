@@ -7,11 +7,11 @@ export const content = {
     { label: "Panta API", href: "#panta" },
   ],
   secondaryLink: { label: "FAQ", href: "#faq" },
-  primaryLink: { label: "Add to Chrome", href: "#install" },
+  primaryLink: { label: "Install guide", href: "#install" },
   headline: ["See the odds,", "trade the take."],
   subtitle:
-    "Sorot puts Panta odds right under the tweets people argue about. Quote, sign with Phantom, and trade without leaving X.",
-  cta: { label: "Install Now", href: "#install" },
+    "Sorot puts Panta odds right under the tweets people argue about. Click the chip, get a quote, and sign with Phantom in a small popup.",
+  cta: { label: "Install guide", href: "#install" },
   // Illustrative hero preview only. Live chips never show numbers that did not come from the Panta API.
   cards: {
     a: { name: "SOL > $300", symbol: "by Oct 31", price: "YES 0.62", change: "NO 0.38" },
@@ -21,13 +21,15 @@ export const content = {
 
 export const trust = {
   line: "Reads x.com in Chrome. Markets and quotes from Panta. Signing in Phantom on Solana.",
+  status:
+    "Early build. The extension, trade page and positions page run on demo data. Live matching and mainnet trading connect when the backend ships.",
   note: "Prices in previews on this page are illustrative. A live chip only shows what the Panta API returned.",
 } as const;
 
 export const problem = {
   eyebrow: "The gap",
   title: "Prediction markets are a destination. The argument isn't.",
-  body: "Nobody opens a market page to argue about an event. They argue on X. Sorot brings the market to the argument.",
+  body: "People rarely open a market page to argue about an event. They argue on X. Sorot brings the market to the argument.",
   points: [
     {
       title: "The debate lives on X",
@@ -99,7 +101,8 @@ export const matching = {
     { value: "≥ 80%", caption: "precision on 50 labeled tweets" },
     { value: "< 4", caption: "clicks from chip to trade" },
   ],
-  targetsNote: "Targets we are building toward. Measured results come from pnpm eval.",
+  targetsNote:
+    "Targets, not results. The backend pipeline is still being built, and the extension uses labeled demo fixtures until it ships. Measured precision will come from pnpm eval.",
 } as const;
 
 export const trade = {
@@ -130,29 +133,34 @@ export const features = {
   title: "Everything the argument needs.",
   flagship: {
     title: "Odds chip",
+    status: "Demo data",
     body: "Market title, YES and NO odds, and a “Powered by Panta” label, right under the tweet. When a price is missing, the chip says “see odds” instead of guessing.",
   },
   items: [
     {
       title: "Verified matches",
-      body: "A three-stage pipeline with a labeled evaluation set. Precision is measured, not assumed.",
+      status: "In progress",
+      body: "A three-stage check: entity prefilter, embedding similarity, yes/no verification. Precision gets measured on 50 labeled tweets before it is claimed.",
     },
     {
       title: "Trade from the tweet",
-      body: "Quote, sign and confirm from a popup opened by the chip.",
+      status: "Demo data",
+      body: "Quote, sign and confirm from a popup opened by the chip. The popup is built. It runs on demo data until the backend connects.",
     },
     {
       title: "Positions and claims",
-      body: "See open positions for your wallet and claim winnings from resolved markets.",
+      status: "Demo data",
+      body: "Open positions for your wallet and a claim button for resolved markets. The page is built and runs on demo data.",
     },
     {
       title: "Trade attribution",
-      body: "Every trade is reported to Panta with Sorot's attribution id.",
+      status: "Planned",
+      body: "Every trade will be reported to Panta with Sorot's attribution id, so Panta can see the volume Sorot brings.",
     },
     {
       title: "Read-only mode",
+      status: "Planned",
       body: "Hide trade buttons and keep only the odds.",
-      badge: "Planned",
     },
   ],
 } as const;
@@ -160,7 +168,7 @@ export const features = {
 export const security = {
   eyebrow: "Security",
   title: "Built so you do not have to trust us with keys.",
-  body: "The extension only reads tweets and draws chips. Everything sensitive lives somewhere else, on purpose.",
+  body: "The extension only reads tweets and draws chips. Everything sensitive lives somewhere else, on purpose. The backend half is still being built. The extension and trade pages already follow this design.",
   flow: [
     { name: "Extension", role: "Reads tweets, draws chips. Holds no keys." },
     { name: "Sorot backend", role: "Holds the Panta key. Proxies an allowlist of routes." },
@@ -189,15 +197,16 @@ export const security = {
 export const pantaApi = {
   eyebrow: "Panta API",
   title: "Panta, end to end.",
-  body: "Sorot uses the catalog, quotes, transaction building, signature submission, verification, positions, claims and trade reporting.",
+  body: "The Panta routes the Sorot backend is being built around: catalog, quotes, transaction building, signature submission, verification, positions, claims and trade reporting.",
+  note: "* Path taken from public integrations. It gets confirmed when the Panta API key is issued.",
   rows: [
     { route: "GET /markets/", use: "Catalog sync" },
-    { route: "GET /markets/{id}/", use: "Chip odds and market detail" },
+    { route: "GET /markets/{id}/", use: "Chip odds and market detail", unconfirmed: true },
     { route: "POST /primaryorderquote/", use: "Quote, valid for about 90 seconds" },
     { route: "POST /primaryorderbuild/", use: "Instructions to sign, with slippage limit" },
     { route: "POST /primaryordersubmit/", use: "Register the signature" },
     { route: "POST /primaryorderverify/", use: "Check the trade status" },
-    { route: "GET /positions/?wallet=", use: "Positions and claimable flag" },
+    { route: "GET /positions/?wallet=", use: "Positions and claimable flag", unconfirmed: true },
     { route: "POST /claim/build/", use: "Instructions to claim winnings" },
     { route: "POST /trades/", use: "Report a trade for attribution" },
   ],
@@ -205,16 +214,18 @@ export const pantaApi = {
 
 export const install = {
   eyebrow: "Install",
-  title: "Add Sorot to Chrome.",
-  body: "Works in Chrome and Chromium browsers. A packaged release and a store listing are on the way. Until then, build it from source.",
+  title: "Try Sorot from source.",
+  body: "Sorot is not on the Chrome Web Store yet and there is no packaged release. For now you build it and load it as an unpacked extension. This build matches tweets against a few labeled demo fixtures, not live Panta data. Needs Node 20+ and pnpm 9+.",
   commands: [
+    { label: "Clone the repository", code: "git clone https://github.com/Im-A-Nuel/sorot.git" },
     { label: "Install dependencies", code: "pnpm install" },
     { label: "Build the extension", code: "pnpm --filter extension build" },
+    { label: "Serve the trade page on localhost:3000", code: "pnpm dev" },
   ],
   steps: [
     "Open chrome://extensions and turn on Developer mode.",
     "Choose Load unpacked and select the extension/dist folder.",
-    "Open x.com. Chips appear under tweets that match a Panta market.",
+    "Open x.com. A tweet that mentions SOL and 300, or ETH and 5k, gets a chip labeled Demo. Clicking it opens the trade page.",
   ],
 } as const;
 
@@ -222,6 +233,10 @@ export const faq = {
   eyebrow: "FAQ",
   title: "Questions, answered.",
   items: [
+    {
+      q: "What works today?",
+      a: "The extension, the trade page and the positions page are built and run on demo data. Live matching, Panta quotes and mainnet signing connect when the backend ships. Nothing in the current build moves real money.",
+    },
     {
       q: "Does Sorot hold my funds or keys?",
       a: "No. Sorot never stores wallet keys or seed phrases. You sign every transaction in Phantom.",
@@ -232,7 +247,7 @@ export const faq = {
     },
     {
       q: "Is it real money?",
-      a: "Yes. Panta runs on Solana mainnet only, with no testnet, so trades use real USDC. Only trade what you can afford to lose.",
+      a: "Once Sorot is connected to Panta, yes. Panta runs on Solana mainnet only, with no testnet, so trades use real USDC. Only trade what you can afford to lose. The current demo build does not move any money.",
     },
     {
       q: "Why is there no chip under a tweet?",
@@ -259,7 +274,7 @@ export const faq = {
 
 export const footer = {
   ctaTitle: "Odds where the argument is.",
-  ctaBody: "Add Sorot, scroll X, and see which takes have a market behind them.",
+  ctaBody: "Load Sorot, scroll X, and see which takes have a market behind them.",
   built: "Built for the Panta API sidetrack at the Colosseum Crypto World's Fair.",
   disclaimer:
     "Odds in previews on this page are illustrative. Live chips only show data returned by the Panta API. Trading involves risk of loss and is not financial advice.",

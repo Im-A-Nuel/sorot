@@ -6,7 +6,10 @@ export function TrustBar() {
       <p className="mx-auto max-w-[760px] text-[15px] font-medium leading-relaxed text-ink">
         {trust.line}
       </p>
-      <p className="mx-auto mt-2 max-w-[760px] text-[13px] leading-relaxed text-subtle">
+      <p className="mx-auto mt-3 max-w-[680px] rounded-2xl border border-ink/15 bg-white/70 px-4 py-3 text-[14px] font-medium leading-relaxed text-ink">
+        {trust.status}
+      </p>
+      <p className="mx-auto mt-3 max-w-[760px] text-[13px] leading-relaxed text-subtle">
         {trust.note}
       </p>
     </div>

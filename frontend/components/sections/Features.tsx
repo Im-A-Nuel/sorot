@@ -13,7 +13,12 @@ export function Features() {
 
         <div className="mt-14 grid gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
           <div className="surface self-start p-7 md:p-9">
-            <h3 className="text-[28px] font-semibold tracking-[-0.025em]">{features.flagship.title}</h3>
+            <h3 className="flex flex-wrap items-center gap-3 text-[28px] font-semibold tracking-[-0.025em]">
+              {features.flagship.title}
+              <span className="rounded-md bg-ink/10 px-2 py-0.5 text-[12px] font-medium tracking-normal text-muted">
+                {features.flagship.status}
+              </span>
+            </h3>
             <p className="mt-3 max-w-[460px] text-[15.5px] leading-relaxed text-muted">
               {features.flagship.body}
             </p>
@@ -36,11 +41,9 @@ export function Features() {
               <li key={item.title} className="border-b border-ink/15 py-5">
                 <h3 className="flex items-center gap-2.5 text-[18px] font-semibold tracking-[-0.01em]">
                   {item.title}
-                  {"badge" in item && (
-                    <span className="rounded-md bg-ink/10 px-2 py-0.5 text-[12px] font-medium text-muted">
-                      {item.badge}
-                    </span>
-                  )}
+                  <span className="rounded-md bg-ink/10 px-2 py-0.5 text-[12px] font-medium text-muted">
+                    {item.status}
+                  </span>
                 </h3>
                 <p className="mt-1.5 text-[15px] leading-relaxed text-muted">{item.body}</p>
               </li>

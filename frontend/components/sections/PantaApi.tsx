@@ -35,6 +35,7 @@ export function PantaApi() {
                   >
                     <code className="break-all font-mono text-[13px] font-medium text-brand-blue">
                       {row.route}
+                      {"unconfirmed" in row && "*"}
                     </code>
                   </th>
                   <td className="block pt-1 text-[14.5px] text-muted sm:table-cell sm:py-4 sm:pt-4">
@@ -44,6 +45,7 @@ export function PantaApi() {
               ))}
             </tbody>
           </table>
+          <p className="text-[13px] text-subtle lg:col-start-2">{pantaApi.note}</p>
         </div>
       </div>
     </section>

@@ -27,8 +27,14 @@ export const content = {
 
 export const trust = {
   line: "Reads x.com in Chrome. Markets and quotes from Panta. Signing in Phantom on Solana.",
-  status:
-    "Early build. The extension, trade page, positions page and API run on built-in demo data. They switch to live Panta markets and mainnet trading once a Panta API key is connected.",
+  // The status box reads /api/health, so it always says what this deployment is really connected to.
+  status: {
+    live: "Early build, connected to live Panta markets. Trades use real USDC on Solana mainnet. Only a few markets are open at any time, so most tweets get no chip, and matching precision has not been measured on real tweets yet.",
+    sandbox:
+      "Early build in Panta sandbox mode: one fake market, and nothing touches mainnet. Switch to a pk_live_ key for real markets.",
+    fixture:
+      "Early build running on built-in demo data. Nothing is sent to Panta. Connect a Panta API key to use live markets.",
+  },
   note: "Prices in previews on this page are illustrative. A live chip only shows what the Panta API returned.",
 } as const;
 
@@ -166,7 +172,7 @@ export const features = {
   title: "Everything the argument needs.",
   flagship: {
     title: "Odds chip",
-    status: "Demo data",
+    status: "Built",
     body: "Market title, YES and NO odds, and a “Powered by Panta” label, right under the tweet. When a price is missing, the chip says “see odds” instead of guessing.",
   },
   items: [
@@ -177,18 +183,18 @@ export const features = {
     },
     {
       title: "Trade from the tweet",
-      status: "Demo data",
-      body: "Quote, sign and confirm from a popup opened by the chip. The popup is built. It runs on demo data until a Panta key is connected.",
+      status: "Untested with a wallet",
+      body: "Quote, sign and confirm from a popup opened by the chip. Quotes and transactions are built by Panta and compile correctly. The signing step has not yet been run end to end with a real wallet.",
     },
     {
       title: "Positions and claims",
-      status: "Demo data",
-      body: "Open positions for your wallet and a claim button for resolved markets. The page is built and runs on demo data until a Panta key is connected.",
+      status: "Untested with a wallet",
+      body: "Open positions for your wallet and a claim button for resolved markets. The page reads positions from Panta. Claiming has not been run end to end yet.",
     },
     {
       title: "Trade attribution",
       status: "Untested live",
-      body: "Every trade is reported to Panta with Sorot's attribution id, so Panta can see the volume Sorot brings. The code is written and gets tested once a Panta key is connected.",
+      body: "Every trade is reported to Panta with Sorot's attribution id, so Panta can see the volume Sorot brings. The code is written and gets tested with the first real trade.",
     },
     {
       title: "Read-only mode",
@@ -248,7 +254,7 @@ export const pantaApi = {
 export const install = {
   eyebrow: "Install",
   title: "Try Sorot from source.",
-  body: "Sorot is not on the Chrome Web Store yet and there is no packaged release. For now you build it and load it as an unpacked extension. This build matches tweets against a few labeled demo fixtures, not live Panta data. Needs Node 20+ and pnpm 9+.",
+  body: "Sorot is not on the Chrome Web Store, and review there takes days. Install it as an unpacked extension: download the zip from the latest GitHub release, or build it from source. Building from source needs Node 20.12+ and pnpm 9+.",
   commands: [
     { label: "Clone the repository", code: "git clone https://github.com/Im-A-Nuel/sorot.git" },
     { label: "Install dependencies", code: "pnpm install" },
@@ -268,7 +274,7 @@ export const faq = {
   items: [
     {
       q: "What works today?",
-      a: "The extension, the trade page, the positions page and the API are built and run on demo data. Live matching, Panta quotes and mainnet signing switch on when a Panta API key is connected. Nothing in the current build moves real money.",
+      a: "The extension, the trade page, the positions page and the API are built and connected to live Panta markets. Matching is tested on synthetic tweets, and the wallet signing step is still being verified with a real trade. Only a few Panta markets are open at any time. The status box under the hero shows what this site is connected to.",
     },
     {
       q: "Where do I connect my wallet?",
@@ -288,7 +294,7 @@ export const faq = {
     },
     {
       q: "Is it real money?",
-      a: "Once Sorot is connected to Panta, yes. Panta runs on Solana mainnet only, with no testnet, so trades use real USDC. Only trade what you can afford to lose. The current demo build does not move any money.",
+      a: "Yes, when this site is connected to live Panta markets. Panta runs on Solana mainnet only, with no testnet, so trades use real USDC. Only trade what you can afford to lose. In sandbox or demo mode nothing moves real money, and the status box says so.",
     },
     {
       q: "Why is there no chip under a tweet?",

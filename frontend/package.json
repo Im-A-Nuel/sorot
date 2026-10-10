@@ -10,7 +10,9 @@
     "test:api": "node tests/api.mjs",
     "db:generate": "pnpm --filter @sorot/db db:generate",
     "db:migrate": "pnpm --filter @sorot/db db:migrate",
-    "test:deploy": "node tests/deploy-check.mjs"
+    "test:deploy": "node tests/deploy-check.mjs",
+    "test:e2e": "node tests/e2e.mjs",
+    "test:wallet": "node tests/wallet-check.e2e.mjs"
   },
   "dependencies": {
     "@solana/web3.js": "^1.99.0",
@@ -27,6 +29,8 @@
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "axe-core": "^4.14.0",
+    "playwright-core": "^1.64.0",
     "postcss": "^8.5.29",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2"

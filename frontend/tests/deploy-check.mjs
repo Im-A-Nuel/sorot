@@ -40,6 +40,7 @@ async function call(path, init) {
   const open = await call("/t/open");
   ok("/t/open redirects to an open market, or says none is open", open.status === 307 || open.status === 200, `status ${open.status} ${open.headers.get("location") ?? ""}`);
   ok("an unknown page is a 404", (await call("/definitely-not-a-page")).status === 404);
+  ok("the devnet wallet-check tool is not exposed", (await call("/dev/wallet-check")).status === 404, "set ENABLE_DEV_TOOLS only on a private preview");
 }
 
 // the API and what it is connected to

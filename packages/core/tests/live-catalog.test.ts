@@ -96,6 +96,45 @@ describe("live catalog shapes", () => {
   });
 });
 
+describe("a coin market without a price level (BTC all-time high)", () => {
+  const btc = normalizeMarket(
+    { marketId: "BTCATH", category: "crypto", title: "Will BTC reach a new all-time high by December 31, 2026?", phase: "primary", resolved: false, status: "primary", endTime: 1798761600, yesPrice: "0.501663897", noPrice: "0.498336103" },
+    NOW,
+  )! as CatalogMarket;
+  const sol = normalizeMarket({ ...haaland, marketId: "SOL300", title: "Will SOL close above $300 on Oct 31?" }, NOW)! as CatalogMarket;
+
+  async function matcher() {
+    const m = new Matcher({ embedder: new HashEmbedder(), verifier: new HeuristicVerifier(), threshold: 0.2 });
+    await m.indexCatalog([btc, sol]);
+    return m;
+  }
+  const tw = (text: string) => ({ tweetId: "1", text, lang: "en" });
+
+  it("matches tweets that are about a new all-time high", async () => {
+    const m = await matcher();
+    for (const text of [
+      "BTC will hit a new all-time high before the end of the year",
+      "Bitcoin to make new highs again, ATH incoming",
+      "I think btc reaches a new ATH by december",
+    ]) {
+      assert.equal((await m.match(tw(text))).marketId, "BTCATH", text);
+    }
+  });
+
+  it("stays quiet on tweets that only mention the coin", async () => {
+    const m = await matcher();
+    for (const text of [
+      "BTC is pumping today",
+      "Bitcoin at 100k is wild",
+      "Just bought some btc, feeling good",
+      "ETH new all-time high soon",
+      "gm, coffee first",
+    ]) {
+      assert.equal((await m.match(tw(text))).marketId, null, text);
+    }
+  });
+});
+
 describe("matching the real open markets", () => {
   const open = (m: Record<string, unknown>) => normalizeMarket(m, NOW)! as CatalogMarket;
   const catalog = [

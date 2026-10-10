@@ -43,6 +43,21 @@ export function normalizeText(text: string): string {
     .trim();
 }
 
+/** Shorthand people use on X, mapped to the plain words a market title uses. */
+const SHORTHAND: Record<string, string[]> = {
+  ath: ["time", "high"],
+  atl: ["time", "low"],
+};
+
+/** Very light stemming so "highs" matches "high". Short words and words ending in "ss" are left alone. */
+function stem(word: string): string {
+  return word.length > 3 && word.endsWith("s") && !word.endsWith("ss") ? word.slice(0, -1) : word;
+}
+
+/** "Oct 31", "December 31, 2026", "Sept 5th": a calendar date is not a price level, so it is removed before reading numbers. */
+const DATE_RE =
+  /\b(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sept?(?:ember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,?\s+\d{4})?/g;
+
 function tokens(normalized: string): string[] {
   return normalized.match(/[a-z]+|\d[\d,]*(?:\.\d+)?[km]?/g) ?? [];
 }
@@ -69,7 +84,7 @@ export type Entities = {
 };
 
 export function extractEntities(text: string): Entities {
-  const normalized = normalizeText(text);
+  const normalized = normalizeText(text).replace(DATE_RE, " ");
   const assets = new Set<string>();
   const numbers = new Set<string>();
   const words = new Set<string>();
@@ -85,7 +100,10 @@ export function extractEntities(text: string): Entities {
     }
     const asset = ALIAS_TO_ASSET.get(tok);
     if (asset) assets.add(asset);
-    if (tok.length >= 3 && !STOPWORDS.has(tok) && !MONTHS.includes(tok)) words.add(tok);
+    for (const w of [tok, ...(SHORTHAND[tok] ?? [])]) {
+      const s = stem(w);
+      if (s.length >= 3 && !STOPWORDS.has(s) && !MONTHS.includes(s)) words.add(s);
+    }
   }
   return { assets, numbers, words };
 }
@@ -97,6 +115,8 @@ export type MarketEntities = {
   names: Set<string>;
   /** Every significant word in the title. A name alone is too weak, so name matches need company. */
   words: Set<string>;
+  /** Title words that are not a ticker or its alias. What the market is actually about beyond the asset. */
+  context: Set<string>;
 };
 
 /** Names are capitalized words in the original title. Common words such as "Will" are skipped, so a name can open the title. */
@@ -111,7 +131,8 @@ export function extractMarketEntities(title: string): MarketEntities {
       if (!MONTHS.includes(lower) && !ALIAS_TO_ASSET.has(lower)) names.add(lower);
     }
   }
-  return { assets: base.assets, numbers: base.numbers, names, words: base.words };
+  const context = new Set([...base.words].filter((w) => !ALIAS_TO_ASSET.has(w)));
+  return { assets: base.assets, numbers: base.numbers, names, words: base.words, context };
 }
 
 /**
@@ -120,6 +141,12 @@ export function extractMarketEntities(title: string): MarketEntities {
  */
 export function sharesSubject(tweet: Entities, market: MarketEntities): boolean {
   const assetOverlap = [...market.assets].some((a) => tweet.assets.has(a));
+  // A ticker with no price level ("BTC reach a new all-time high") is too common. The tweet must also share a word
+  // about what the market asks, or any tweet that mentions the coin would match.
+  if (assetOverlap && market.numbers.size === 0) {
+    const shared = [...market.context].filter((w) => tweet.words.has(w)).length;
+    return shared >= 1;
+  }
   // Without a ticker, a shared name must come with at least one more shared word ("Fed up" is not "Fed cut rates").
   const sharedWords = [...market.words].filter((w) => tweet.words.has(w)).length;
   const nameOverlap = [...market.names].some((n) => tweet.words.has(n)) && sharedWords >= 2;

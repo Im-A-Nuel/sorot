@@ -48,6 +48,12 @@ describe("entity extraction", () => {
     assert.deepEqual([...e.numbers].sort(), ["100000", "300", "5000"]);
   });
 
+  it("does not read a calendar date as a price level", () => {
+    assert.equal(extractEntities("Will SOL close above $300 on Oct 31?").numbers.has("31"), false);
+    assert.deepEqual([...extractEntities("by December 31, 2026").numbers], []);
+    assert.equal(extractEntities("SOL hits $31").numbers.has("31"), true);
+  });
+
   it("does not read a bare year as a price level", () => {
     assert.equal(extractEntities("SOL in 2026").numbers.has("2026"), false);
     assert.equal(extractEntities("SOL at $2026").numbers.has("2026"), true);

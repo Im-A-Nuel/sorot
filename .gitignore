@@ -9,3 +9,6 @@ frontend/AGENTS.md
 dist-api
 dist-live
 .panta-pw
+dist-release
+dist-package-test
+release

@@ -40,11 +40,15 @@ export function createRuntime(opts: {
   env: RuntimeEnv;
   store: Store;
   sim?: () => string | null;
+  /** Use this client instead of choosing one from the env. The eval uses it to replay a saved catalog. */
+  panta?: PantaClient;
   log?: (message: string, extra?: unknown) => void;
 }) {
   const { env, store } = opts;
 
-  const panta: PantaClient = env.PANTA_API_KEY && env.PANTA_FORCE_FIXTURES !== "1"
+  const panta: PantaClient = opts.panta
+    ? opts.panta
+    : env.PANTA_API_KEY && env.PANTA_FORCE_FIXTURES !== "1"
     ? new HttpPantaClient({
         apiKey: env.PANTA_API_KEY,
         baseUrl: env.PANTA_API_BASE || undefined,

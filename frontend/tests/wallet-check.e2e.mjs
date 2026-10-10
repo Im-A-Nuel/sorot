@@ -6,6 +6,9 @@ import { chromium } from "playwright-core";
 import fs from "node:fs";
 
 const axeSrc = fs.readFileSync("node_modules/axe-core/axe.min.js", "utf8");
+// Screenshots go to a folder git ignores.
+fs.mkdirSync("tests/.screenshots", { recursive: true });
+process.chdir("tests/.screenshots");
 const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 const WALLET = "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin";
 const BLOCKHASH = "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi5";

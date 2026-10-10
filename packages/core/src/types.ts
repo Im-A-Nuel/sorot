@@ -110,6 +110,14 @@ export class SorotError extends Error {
   }
 }
 
+/**
+ * True for a SorotError even when the class was loaded twice. A production bundle can contain two copies of this module,
+ * and `instanceof` then fails and turns every mapped error into a 500, so errors are recognized by their shape.
+ */
+export function isSorotError(e: unknown): e is SorotError {
+  return typeof e === "object" && e !== null && (e as { name?: unknown }).name === "SorotError" && typeof (e as { code?: unknown }).code === "string";
+}
+
 export const MARKET_ID_RE = /^[A-Za-z0-9_.:-]{1,128}$/;
 export const TWEET_ID_RE = /^\d{1,25}$/;
 export const SIGNATURE_RE = /^[1-9A-HJ-NP-Za-km-z]{43,90}$|^demo-[a-z0-9]{6,40}$/;

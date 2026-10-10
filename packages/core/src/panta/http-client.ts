@@ -1,4 +1,4 @@
-import { SorotError, type ErrorCode } from "../types.ts";
+import { SorotError, isSorotError, type ErrorCode } from "../types.ts";
 import type { CatalogMarket, Position, Quote, QuoteRequest, RecentTrade } from "../types.ts";
 import type { PantaClient } from "./client.ts";
 import { SlidingWindowLimiter } from "./limiter.ts";
@@ -164,7 +164,7 @@ export class HttpPantaClient implements PantaClient {
         .filter((t): t is RecentTrade => t !== null)
         .slice(0, 10);
     } catch (e) {
-      if (e instanceof SorotError && e.code === "NOT_FOUND") return [];
+      if (isSorotError(e) && e.code === "NOT_FOUND") return [];
       throw e;
     }
   }
@@ -175,7 +175,7 @@ export class HttpPantaClient implements PantaClient {
       try {
         return await fn();
       } catch (e) {
-        const transient = e instanceof SorotError && e.code === "PANTA_UPSTREAM";
+        const transient = isSorotError(e) && e.code === "PANTA_UPSTREAM";
         if (!transient || attempt >= tries) throw e;
         await this.sleep(400 * attempt);
       }

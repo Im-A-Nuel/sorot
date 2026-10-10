@@ -1,6 +1,6 @@
 import "server-only";
 import { NextResponse, type NextRequest } from "next/server";
-import { SorotError, type ErrorCode } from "@sorot/core";
+import { SorotError, isSorotError, type ErrorCode } from "@sorot/core";
 import type { ZodType } from "zod";
 import { runWithSim, simAllowed } from "./runtime";
 
@@ -18,8 +18,8 @@ const STATUS: Record<ErrorCode, number> = {
 };
 
 export function errorResponse(err: unknown): NextResponse {
-  const e = err instanceof SorotError ? err : new SorotError("UNKNOWN", "Something went wrong.");
-  if (!(err instanceof SorotError)) console.error("[sorot] unexpected error", err instanceof Error ? err.message : err);
+  const e = isSorotError(err) ? err : new SorotError("UNKNOWN", "Something went wrong.");
+  if (!isSorotError(err)) console.error("[sorot] unexpected error", err instanceof Error ? err.message : err);
   const headers: Record<string, string> = {};
   if (e.code === "RATE_LIMITED" && e.retryAfterMs) headers["retry-after"] = String(Math.ceil(e.retryAfterMs / 1000));
   return NextResponse.json(

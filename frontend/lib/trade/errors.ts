@@ -1,4 +1,4 @@
-import { ApiError, type ApiErrorCode } from "@/lib/api/types";
+import { ApiError, isApiError, type ApiErrorCode } from "@/lib/api/types";
 
 export type ErrorCopy = {
   title: string;
@@ -71,7 +71,7 @@ const copy: Record<ApiErrorCode, ErrorCopy> = {
 };
 
 export function toApiError(err: unknown): ApiError {
-  if (err instanceof ApiError) return err;
+  if (isApiError(err)) return err;
   return new ApiError("UNKNOWN", err instanceof Error ? err.message : undefined);
 }
 

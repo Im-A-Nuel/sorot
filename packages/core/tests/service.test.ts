@@ -198,3 +198,22 @@ describe("service: trading", () => {
     await assert.rejects(() => service.claimBuild({ wallet: WALLET, marketId: "demo-fed-cut" }), { code: "NOT_CLAIMABLE" });
   });
 });
+
+describe("error recognition", () => {
+  it("recognizes a SorotError by its shape, even from a second copy of the class", async () => {
+    const { isSorotError, SorotError } = await import("../src/types.ts");
+    class SorotError2 extends Error {
+      code = "NOT_FOUND";
+      constructor(message: string) {
+        super(message);
+        this.name = "SorotError";
+      }
+    }
+    assert.equal(isSorotError(new SorotError("NOT_FOUND")), true);
+    assert.equal(isSorotError(new SorotError2("copy")), true);
+    assert.equal(new SorotError2("copy") instanceof SorotError, false);
+    assert.equal(isSorotError(new Error("plain")), false);
+    assert.equal(isSorotError(null), false);
+    assert.equal(isSorotError({ name: "SorotError" }), false);
+  });
+});

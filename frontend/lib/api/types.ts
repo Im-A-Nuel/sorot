@@ -73,6 +73,11 @@ export type ApiErrorCode =
   | "NETWORK"
   | "UNKNOWN";
 
+/** Recognizes an ApiError by its shape, so it still works if the class was bundled twice. */
+export function isApiError(e: unknown): e is ApiError {
+  return typeof e === "object" && e !== null && (e as { name?: unknown }).name === "ApiError" && typeof (e as { code?: unknown }).code === "string";
+}
+
 export class ApiError extends Error {
   code: ApiErrorCode;
   retryAfterMs?: number;

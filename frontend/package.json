@@ -9,7 +9,8 @@
     "lint": "tsc --noEmit",
     "test:api": "node tests/api.mjs",
     "db:generate": "pnpm --filter @sorot/db db:generate",
-    "db:migrate": "pnpm --filter @sorot/db db:migrate"
+    "db:migrate": "pnpm --filter @sorot/db db:migrate",
+    "test:deploy": "node tests/deploy-check.mjs"
   },
   "dependencies": {
     "@solana/web3.js": "^1.99.0",

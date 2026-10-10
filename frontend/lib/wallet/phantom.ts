@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiError, type BuiltTransaction } from "@/lib/api/types";
+import { ApiError, isApiError, type BuiltTransaction } from "@/lib/api/types";
 
 /**
  * Minimal Phantom integration through the injected provider. No private keys are ever read or stored here.
@@ -222,7 +222,7 @@ export async function approveInWallet(opts: {
     }
   } catch (err) {
     if (isRejected(err)) throw new ApiError("USER_REJECTED", "You declined the request in Phantom.");
-    if (err instanceof ApiError) throw err;
+    if (isApiError(err)) throw err;
     throw new ApiError("UNKNOWN", "Phantom could not complete the request.");
   }
   return `demo-${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`;

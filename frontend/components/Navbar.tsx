@@ -4,7 +4,7 @@ import { MobileMenu } from "./MobileMenu";
 
 export function Navbar() {
   return (
-    <header className="absolute inset-x-0 top-0 z-30 flex h-[calc(72*var(--nu))] min-h-16 items-center justify-between px-[max(20px,calc(83*var(--nu)))]">
+    <header className="absolute inset-x-0 top-0 z-30 flex h-[calc(72*var(--nu))] min-h-16 items-center justify-between px-4 md:px-[max(20px,calc(83*var(--nu)))]">
       <nav
         aria-label="Primary"
         className="hidden items-center gap-[calc(25*var(--nu))] text-[max(12.5px,calc(13.2*var(--nu)))] font-medium md:flex"

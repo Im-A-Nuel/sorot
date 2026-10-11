@@ -31,7 +31,7 @@ export function MobileMenu({ items }: { items: readonly Item[] }) {
         aria-controls="mobile-nav"
         aria-label={open ? "Close menu" : "Open menu"}
         onClick={() => setOpen((v) => !v)}
-        className="-ml-2 flex size-11 cursor-pointer items-center justify-center rounded-full"
+        className="-ml-2.5 flex size-11 cursor-pointer items-center justify-center rounded-full"
       >
         {open ? <CloseIcon /> : <MenuIcon />}
       </button>

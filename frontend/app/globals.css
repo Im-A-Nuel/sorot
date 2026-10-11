@@ -60,6 +60,13 @@ body {
   gap: 8px;
 }
 
+/* Tablets in portrait: do not stretch the hero to the full screen height, that only adds empty space. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero {
+    height: max(62.5vw, 560px);
+  }
+}
+
 /*
  * Phones: the stage is drawn bigger so the phone is readable, the wordmark is sized to fit the screen width so it is
  * never cut at the sides, and the hero is only as tall as its content instead of the whole screen.

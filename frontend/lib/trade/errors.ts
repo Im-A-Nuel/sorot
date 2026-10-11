@@ -35,7 +35,7 @@ const copy: Record<ApiErrorCode, ErrorCopy> = {
   },
   QUOTE_EXPIRED: {
     title: "The quote expired",
-    body: "Quotes only last about 90 seconds. Get a new one to continue.",
+    body: "Quotes only last a short time. Get a new one to continue.",
     retry: "requote",
   },
   SLIPPAGE: {

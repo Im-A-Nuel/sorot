@@ -108,7 +108,7 @@ export const pantaApi = {
   body: "From catalog to claim, these are the Panta routes the Sorot API calls, and the only ones it will call.",
   stops: [
     { route: "GET /markets/", use: "Catalog and market detail" },
-    { route: "POST /primaryorderquote/", use: "Quote, valid for about 90 seconds" },
+    { route: "POST /primaryorderquote/", use: "Quote, valid for a short time" },
     { route: "POST /primaryorderbuild/", use: "Instructions to sign, with a slippage limit" },
     { route: "POST /primaryordersubmit/", use: "Register the signature, then check it with /primaryorderverify/" },
     { route: "GET /positions/", use: "Positions, and POST /claim/build/ for winnings" },

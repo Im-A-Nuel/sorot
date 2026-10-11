@@ -101,7 +101,7 @@ The API is Next.js route handlers in `frontend/app/api`, on the same origin as t
 
 **POST /api/trade/quote**
 - Request: `{ "marketId": "abc", "side": "yes", "amountUsdc": "5", "wallet": "...", "tweetId": "1840..." }`
-- Response: `{ quoteId, marketId, side, amountUsdc, shares, avgPrice, feeUsdc, maxSlippageBps, expiresAt }`. A quote lives about 90 seconds.
+- Response: `{ quoteId, marketId, side, amountUsdc, shares, avgPrice, feeUsdc, maxSlippageBps, expiresAt }`. A quote lives a short time (about two minutes on live Panta; the fixtures use 90 seconds).
 
 **POST /api/trade/build**
 - Request: `{ "quoteId": "...", "maxSlippageBps": 100, "wallet": "..." }`
@@ -154,7 +154,7 @@ Base URL `https://live-api.panta.market/api/v1`, trailing slash required, auth h
 | --- | --- | --- |
 | catalog sync | `GET /markets/` | Cursor pagination. Titles are often empty |
 | `GET /api/markets/:id` | `GET /markets/{id}/` | Prices may be null |
-| `POST /api/trade/quote` | `POST /primaryorderquote/` | Amounts are decimal strings. Opens a `quoteId` session of about 90 seconds |
+| `POST /api/trade/quote` | `POST /primaryorderquote/` | Amounts are decimal strings. Opens a `quoteId` session of a short time |
 | `POST /api/trade/build` | `POST /primaryorderbuild/` | Returns `instructions` and `recentBlockhash`. Rejects past `maxSlippageBps` |
 | `POST /api/trade/submit` | `POST /primaryordersubmit/` | Client broadcasts, Panta only registers the signature |
 | `GET /api/trade/verify` | `POST /primaryorderverify/` | |

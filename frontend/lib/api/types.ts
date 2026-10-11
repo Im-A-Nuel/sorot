@@ -25,7 +25,7 @@ export type Quote = {
   avgPrice: string;
   feeUsdc: string;
   maxSlippageBps: number;
-  /** Epoch milliseconds. A Panta quote lives for about 90 seconds. */
+  /** Epoch milliseconds. A Panta quote lives for a short time (about two minutes on live Panta). */
   expiresAt: number;
 };
 

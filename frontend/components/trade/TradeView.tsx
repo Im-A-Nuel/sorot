@@ -113,7 +113,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const STATUS_TEXT: Partial<Record<Phase, string>> = {
   quoting: "Getting a quote from Panta.",
-  quoted: "Quote ready. It expires in 90 seconds.",
+  quoted: "Quote ready. Check the countdown before you approve.",
   expired: "The quote expired.",
   approving: "Approve the request in Phantom.",
   sending: "Sending your signature to Panta.",
@@ -423,7 +423,7 @@ export function TradeView({ marketId, tweetId, initialSide = "yes" }: Props) {
 
       {state.phase === "expired" && (
         <Notice tone="info" title="The quote expired">
-          Quotes only last about 90 seconds. Get a new one to see the current price.
+          Quotes only last a short time. Get a new one to see the current price.
         </Notice>
       )}
 

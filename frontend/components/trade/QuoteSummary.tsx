@@ -1,6 +1,5 @@
+import { useRef } from "react";
 import { formatDecimal, type Quote } from "@/lib/api";
-
-const WINDOW_MS = 90_000;
 
 type Props = {
   quote: Quote;
@@ -14,7 +13,10 @@ function clock(ms: number): string {
 
 /** Quote details from Panta with a live countdown. Amounts are formatted from decimal strings. */
 export function QuoteSummary({ quote, remainingMs }: Props) {
-  const share = Math.min(1, Math.max(0, remainingMs / WINDOW_MS));
+  // The bar is full when the quote arrives and empties over that quote's own window.
+  const windowRef = useRef({ id: "", ms: 0 });
+  if (windowRef.current.id !== quote.quoteId) windowRef.current = { id: quote.quoteId, ms: Math.max(remainingMs, 1) };
+  const share = Math.min(1, Math.max(0, remainingMs / windowRef.current.ms));
   const urgent = remainingMs <= 15_000;
 
   const rows: [string, string][] = [

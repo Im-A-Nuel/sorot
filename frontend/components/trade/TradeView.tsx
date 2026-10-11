@@ -20,6 +20,7 @@ import { DemoBanner } from "@/components/app/DemoBanner";
 import { WalletButton } from "@/components/app/WalletButton";
 import { Button, buttonClasses } from "@/components/ui/Button";
 import { ExternalIcon } from "@/components/ui/Icons";
+import { InlineAlert } from "@/components/ui/InlineAlert";
 import { Notice } from "@/components/ui/Notice";
 import { AmountField } from "./AmountField";
 import { QuoteSummary } from "./QuoteSummary";
@@ -314,15 +315,22 @@ export function TradeView({ marketId, tweetId, initialSide = "yes" }: Props) {
     }
     if (wallet.status !== "connected") {
       return (
-        <Button
-          size="lg"
-          variant="accent"
-          className="w-full"
-          loading={wallet.status === "connecting"}
-          onClick={() => void wallet.connect()}
-        >
-          Connect Phantom
-        </Button>
+        <>
+          <Button
+            size="lg"
+            variant="accent"
+            className="w-full"
+            loading={wallet.status === "connecting"}
+            onClick={() => void wallet.connect()}
+          >
+            Connect Phantom
+          </Button>
+          {wallet.error && (
+            <InlineAlert role="alert" className="mt-3">
+              {wallet.error}
+            </InlineAlert>
+          )}
+        </>
       );
     }
     if (state.phase === "quoted") {

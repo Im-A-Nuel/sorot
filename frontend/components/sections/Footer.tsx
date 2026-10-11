@@ -53,14 +53,14 @@ export function Footer() {
               </a>
               <p className="mt-4 text-[14px] leading-relaxed text-white/85">{footer.built}</p>
             </div>
-            <ul className="flex flex-wrap gap-x-7 gap-y-3 text-[14.5px] font-medium text-white">
+            <ul className="flex flex-wrap gap-x-7 gap-y-0 text-[14.5px] font-medium text-white">
               {footer.links.map((link) => {
                 const external = link.href.startsWith("http");
                 return (
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="inline-flex items-center gap-1 hover:underline"
+                      className="inline-flex min-h-11 items-center gap-1 hover:underline"
                       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     >
                       {link.label}

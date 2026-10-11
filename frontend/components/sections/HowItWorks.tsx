@@ -40,7 +40,7 @@ export function HowItWorks() {
                       {"link" in step && (
                         <a
                           href={step.link.href}
-                          className="mt-1.5 inline-block text-[14.5px] font-semibold text-brand-blue underline underline-offset-4"
+                          className="-mb-2 mt-0.5 inline-flex min-h-11 items-center text-[14.5px] font-semibold text-brand-blue underline underline-offset-4"
                         >
                           {step.link.label}
                         </a>

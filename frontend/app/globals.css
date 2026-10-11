@@ -39,6 +39,17 @@ body {
   }
 }
 
+/* Hero buttons: 44px tall on phones for thumbs, the reference size on desktop. */
+.hero-btn {
+  height: max(44px, calc(36 * var(--u)));
+}
+
+@media (min-width: 768px) {
+  .hero-btn {
+    height: max(38px, calc(36 * var(--u)));
+  }
+}
+
 /* Visible keyboard focus everywhere. Mouse clicks do not show it. */
 :focus-visible {
   outline: 2px solid var(--color-brand-blue);
@@ -107,18 +118,78 @@ body {
   animation: sk-pulse 1.4s ease-in-out infinite;
 }
 
+/* One timing for every interactive element, so hover and focus changes feel the same on every page. */
+@layer base {
+  a,
+  button,
+  summary,
+  input,
+  [role="tab"] {
+    transition-property: color, background-color, border-color, opacity, box-shadow, transform;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+  }
+}
+
+/* Entrances for things that appear after an action: alerts and the phone menu. One short fade, no bounce. */
+@keyframes enter-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes enter-menu {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+.enter-fade {
+  animation: enter-fade 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.enter-menu {
+  transform-origin: top center;
+  animation: enter-menu 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Disclosure panels (FAQ, recent trades) open and close smoothly where the browser supports it. */
+@supports (selector(::details-content)) {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
+  details::details-content {
+    height: 0;
+    overflow: clip;
+    transition:
+      height 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+      content-visibility 0.26s allow-discrete;
+  }
+
+  details[open]::details-content {
+    height: auto;
+  }
+}
+
+/* Reduced motion: nothing slides, fades or spins. State changes are instant. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
 
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
   .reveal {
     opacity: 1;
     transform: none;
-    transition: none;
-  }
-
-  .skeleton {
-    animation: none;
   }
 }

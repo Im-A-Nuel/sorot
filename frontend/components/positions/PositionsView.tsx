@@ -8,6 +8,7 @@ import { AppShell } from "@/components/app/AppShell";
 import { DemoBanner } from "@/components/app/DemoBanner";
 import { WalletButton } from "@/components/app/WalletButton";
 import { Button, buttonClasses } from "@/components/ui/Button";
+import { InlineAlert } from "@/components/ui/InlineAlert";
 import { Notice } from "@/components/ui/Notice";
 import { PositionRow } from "./PositionRow";
 
@@ -146,9 +147,9 @@ export function PositionsView() {
             </Button>
           </div>
           {wallet.error && (
-            <p role="alert" className="mt-3 text-[13.5px] text-danger">
+            <InlineAlert role="alert" className="mt-4 justify-center text-left">
               {wallet.error}
-            </p>
+            </InlineAlert>
           )}
         </div>
       );

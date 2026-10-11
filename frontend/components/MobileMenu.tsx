@@ -40,7 +40,7 @@ export function MobileMenu({ items }: { items: readonly Item[] }) {
         <nav
           id="mobile-nav"
           aria-label="Primary"
-          className="absolute left-3 right-3 top-[calc(100%-4px)] z-40 rounded-[22px] border border-ink/10 bg-white p-2 shadow-[0_24px_50px_-24px_rgba(40,50,160,0.5)]"
+          className="enter-menu absolute left-3 right-3 top-[calc(100%-4px)] z-40 rounded-[22px] border border-ink/10 bg-white p-2 shadow-[0_24px_50px_-24px_rgba(40,50,160,0.5)]"
         >
           <ul>
             {items.map((item) => (

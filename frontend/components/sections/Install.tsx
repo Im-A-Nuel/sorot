@@ -18,7 +18,7 @@ export function Install() {
               {install.commands.map((cmd) => (
                 <li
                   key={cmd.code}
-                  className="flex items-center justify-between gap-2 rounded-xl bg-white/[0.07] py-1.5 pl-4 pr-1.5"
+                  className="flex items-center justify-between gap-2 rounded-xl bg-white/[0.07] py-0.5 pl-4 pr-1"
                 >
                   <code className="min-w-0 break-words font-mono text-[13.5px] text-white">
                     <span className="sr-only">{cmd.label}: </span>

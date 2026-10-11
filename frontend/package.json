@@ -12,7 +12,8 @@
     "db:migrate": "pnpm --filter @sorot/db db:migrate",
     "test:deploy": "node tests/deploy-check.mjs",
     "test:e2e": "node tests/e2e.mjs",
-    "test:wallet": "node tests/wallet-check.e2e.mjs"
+    "test:wallet": "node tests/wallet-check.e2e.mjs",
+    "test:motion": "node tests/motion.e2e.mjs"
   },
   "dependencies": {
     "@solana/web3.js": "^1.99.0",

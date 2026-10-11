@@ -27,14 +27,14 @@ export function WalletButton({ wallet }: { wallet: WalletState }) {
 
   if (status === "connected" && address) {
     return (
-      <div className="flex shrink-0 items-center gap-0.5 whitespace-nowrap rounded-full border border-ink/20 bg-white py-1 pl-3 pr-1 sm:pl-4">
+      <div className="flex shrink-0 items-center gap-0.5 whitespace-nowrap rounded-full border border-ink/20 bg-white pl-3 pr-0 sm:pl-4">
         <span className="font-mono text-[13px] font-medium" title={address}>
           {shortAddress(address)}
         </span>
         <button
           type="button"
           onClick={() => void disconnect()}
-          className="min-h-9 cursor-pointer rounded-full px-2.5 text-[13px] font-medium text-muted hover:bg-ink/[0.06]"
+          className="min-h-11 cursor-pointer rounded-full px-3 text-[13px] font-medium text-muted hover:bg-ink/[0.06]"
         >
           Disconnect
         </button>

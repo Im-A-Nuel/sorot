@@ -28,7 +28,7 @@ export function AppShell({ children, wallet, width = "narrow", current }: Props)
             <Link
               href="/"
               aria-label="Sorot home"
-              className="flex items-center gap-2 rounded-full py-1 pr-2 text-[17px] font-semibold"
+              className="flex min-h-11 min-w-11 items-center gap-2 rounded-full pr-2 text-[17px] font-semibold"
             >
               <Logo size={28} />
               <span className="max-[480px]:sr-only">Sorot</span>
@@ -37,7 +37,7 @@ export function AppShell({ children, wallet, width = "narrow", current }: Props)
               <Link
                 href="/positions"
                 aria-current={current === "positions" ? "page" : undefined}
-                className={`rounded-full px-3 py-2.5 text-[14px] font-medium hover:bg-ink/[0.06] ${
+                className={`inline-flex min-h-11 items-center rounded-full px-3 text-[14px] font-medium hover:bg-ink/[0.06] ${
                   current === "positions" ? "bg-ink/[0.07]" : ""
                 }`}
               >

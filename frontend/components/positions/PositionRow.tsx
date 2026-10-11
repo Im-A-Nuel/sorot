@@ -7,6 +7,7 @@ import { errorCopy, toApiError } from "@/lib/trade/errors";
 import { approveInWallet } from "@/lib/wallet/phantom";
 import { Button } from "@/components/ui/Button";
 import { CheckIcon } from "@/components/ui/Icons";
+import { InlineAlert } from "@/components/ui/InlineAlert";
 
 type ClaimState =
   | { phase: "idle" }
@@ -130,9 +131,9 @@ export function PositionRow({ position, wallet, onClaimed }: Props) {
         </div>
 
         {failure && (
-          <p role="alert" className="mt-2 text-[13.5px] leading-snug text-danger md:ml-auto md:max-w-[22ch]">
+          <InlineAlert role="alert" className="mt-2 md:ml-auto md:max-w-[26ch]">
             <span className="font-semibold">{failure.title}.</span> {failure.body}
-          </p>
+          </InlineAlert>
         )}
       </td>
     </tr>

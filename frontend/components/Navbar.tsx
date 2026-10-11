@@ -37,7 +37,7 @@ export function Navbar() {
         </a>
         <a
           href={content.primaryLink.href}
-          className="flex h-[max(36px,calc(28*var(--u)))] items-center rounded-full bg-brand-blue px-[max(14px,calc(18*var(--u)))] text-white"
+          className="flex h-[max(44px,calc(28*var(--u)))] items-center md:h-[max(36px,calc(28*var(--u)))] rounded-full bg-brand-blue px-[max(14px,calc(18*var(--u)))] text-white"
         >
           {content.primaryLink.label}
         </a>

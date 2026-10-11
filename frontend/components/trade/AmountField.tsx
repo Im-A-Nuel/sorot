@@ -1,6 +1,7 @@
 "use client";
 
 import { amountMessages, checkAmount } from "@/lib/api";
+import { InlineAlert } from "@/components/ui/InlineAlert";
 
 const PRESETS = ["5", "10", "25"] as const;
 
@@ -45,9 +46,9 @@ export function AmountField({ value, onChange, showErrors, onBlur, disabled }: P
       </div>
 
       {error ? (
-        <p id="amount-error" className="mt-2 text-[13.5px] font-medium text-danger">
+        <InlineAlert id="amount-error" className="mt-2">
           {error}
-        </p>
+        </InlineAlert>
       ) : (
         <p id="amount-hint" className="mt-2 text-[13px] text-subtle">
           Real USDC on Solana mainnet.

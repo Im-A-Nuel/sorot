@@ -27,7 +27,7 @@ export function Notice({ tone, title, children, actions, innerRef, id }: Props) 
       id={id}
       tabIndex={-1}
       role={tone === "error" ? "alert" : "status"}
-      className={`rounded-2xl border p-4 ${tones[tone]}`}
+      className={`enter-fade rounded-2xl border p-4 ${tones[tone]}`}
     >
       <div className="flex gap-3">
         <span className="mt-0.5 shrink-0">

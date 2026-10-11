@@ -43,9 +43,8 @@ export function Hero() {
         <div className="flex items-center" style={{ marginTop: u(29), gap: 8 }}>
           <a
             href={content.cta.href}
-            className="flex items-center justify-center rounded-full bg-[#050608] text-white"
+            className="hero-btn flex items-center justify-center rounded-full bg-[#050608] text-white"
             style={{
-              height: `max(38px, ${u(36)})`,
               minWidth: `max(104px, ${u(101)})`,
               paddingInline: u(16),
               whiteSpace: "nowrap",
@@ -57,9 +56,8 @@ export function Hero() {
           </a>
           <a
             href={content.secondaryCta.href}
-            className="flex items-center justify-center rounded-full border border-ink/25 bg-white/80 text-ink"
+            className="hero-btn flex items-center justify-center rounded-full border border-ink/25 bg-white/80 text-ink"
             style={{
-              height: `max(38px, ${u(36)})`,
               minWidth: `max(112px, ${u(108)})`,
               paddingInline: u(16),
               whiteSpace: "nowrap",

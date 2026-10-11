@@ -48,4 +48,5 @@ Only a real mainnet trade proves the last steps: Panta accepting the submitted s
 | `pnpm --filter frontend test:api` | API contract against a running server with `PANTA_FORCE_FIXTURES=1` |
 | `pnpm --filter frontend test:e2e` | Trade and positions pages in Chrome with a fake Phantom, plus accessibility (axe). Needs Chrome and the fixtures dev server |
 | `pnpm --filter frontend test:wallet` | The devnet wallet-check page: transaction shape, rejection and RPC failure |
+| `pnpm --filter frontend test:motion` | Motion: FAQ panel animates, one shared 150ms transition, phone menu entrance, reduced motion turns it off |
 | `pnpm --filter frontend test:deploy -- <url>` | Post-deploy checks |

@@ -28,7 +28,7 @@ export function CopyButton({ text, label }: { text: string; label: string }) {
       type="button"
       onClick={copy}
       aria-label={`Copy command: ${label}`}
-      className="flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-medium text-white/90 transition-colors hover:bg-white/10"
+      className="flex h-11 shrink-0 cursor-pointer items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-medium text-white/90 transition-colors hover:bg-white/10"
     >
       {state === "copied" ? <CheckIcon size={15} /> : <CopyIcon size={15} />}
       <span role="status">

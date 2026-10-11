@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api, formatDecimal, shortAddress, type RecentTrade } from "@/lib/api";
 import { timeAgo } from "@/lib/use-now";
+import { InlineAlert } from "@/components/ui/InlineAlert";
 
 type State =
   | { status: "idle" }
@@ -33,7 +34,7 @@ export function RecentTrades({ marketId }: { marketId: string }) {
       className="group border-t border-ink/10 pt-4"
       onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between text-[14px] font-semibold [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-[14px] font-semibold [&::-webkit-details-marker]:hidden">
         Recent trades
         <span aria-hidden="true" className="text-muted transition-transform group-open:rotate-180">
           ▾
@@ -49,7 +50,7 @@ export function RecentTrades({ marketId }: { marketId: string }) {
           </div>
         )}
         {state.status === "error" && (
-          <p className="text-[13.5px] text-danger">
+          <InlineAlert>
             Could not load recent trades.{" "}
             <button
               type="button"
@@ -58,7 +59,7 @@ export function RecentTrades({ marketId }: { marketId: string }) {
             >
               Retry
             </button>
-          </p>
+          </InlineAlert>
         )}
         {state.status === "ready" && state.trades.length === 0 && (
           <p className="text-[13.5px] text-muted">No trades on this market yet.</p>

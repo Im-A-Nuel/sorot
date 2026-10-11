@@ -1,6 +1,6 @@
 # Submission Kit: Sorot
 
-Terakhir diperbarui: 5 Oktober 2026
+Terakhir diperbarui: 11 Oktober 2026
 
 Submission Panta wajib dalam bahasa Inggris. Panta juga wajib submit lewat platform Colosseum, jadi kit ini hanya dipakai kalau Sorot adalah submission Colosseum-mu.
 
@@ -82,3 +82,20 @@ Submission Panta wajib dalam bahasa Inggris. Panta juga wajib submit lewat platf
 ## Panta submission description (English)
 
 > Sorot is a Chrome extension that brings Panta prediction markets to the place where people argue about events: the X timeline. It matches each tweet to the Panta catalog (entity prefilter, embedding similarity, LLM verification), shows verified odds under the tweet, and lets users quote, build, sign, and claim from a hosted trade page with every trade attributed to Sorot. Precision on 50 labeled tweets: TODO%. Mainnet trades: TODO.
+
+
+---
+
+## Draft form answers (English, honest as of 11 Oct 2026)
+
+**One line.** Sorot shows Panta prediction-market odds right under the tweets people argue about, and opens a quote and trade page in one click.
+
+**Description.** Sorot is a Chrome extension plus a hosted trade page. It reads tweets on x.com, matches each one against the open Panta markets (entity filter, embedding similarity, then a yes/no verification), and only shows a chip when the match is clear. Clicking the chip opens a trade page where you connect Phantom, pick YES or NO, get a real quote from Panta and sign. Positions and claims are on a separate page. There is no sign-up: the wallet is the login. The Panta API key stays on the server and the extension holds no keys.
+
+**Panta integration, per endpoint.** Catalog and market detail (`GET /markets/`, `GET /markets/{id}/`), recent trades (`GET /markets/{id}/trades/`), quote (`POST /primaryorderquote/`), build (`POST /primaryorderbuild/`), submit and verify (`POST /primaryordersubmit/`, `POST /primaryorderverify/`), positions (`GET /positions/`), claim build (`POST /claim/build/`), and trade attribution (`POST /trades/`). The Sorot API proxies only this allowlist.
+
+**What works today.** Live catalog sync, matching and odds on real Panta markets, real quotes and transaction building, the extension chip and the popup trade flow, and the positions page.
+
+**What is not proven yet (say this plainly).** A real mainnet trade signed in Phantom, the attribution report for it, claims, and a measured match precision. The demo video uses a simulated X timeline and a stand-in wallet, and says so.
+
+**Do not claim.** Installs, trades, volume, users or a precision number until they exist.

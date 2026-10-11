@@ -15,19 +15,30 @@ The same pattern is proven on Polymarket by extensions like PMs4X. Sorot is the 
 ## How it works
 
 1. The content script reads each tweet as it appears in the timeline.
-2. The API matches the tweet against the Panta catalog: entity prefilter, embedding similarity, LLM yes/no verification.
+2. The API matches the tweet against the Panta catalog: entity prefilter, embedding similarity, then a yes/no verification (a local heuristic by default, or an LLM when `LLM_API_KEY` is set).
 3. If the match passes, a chip shows the market and its odds under the tweet. If not, nothing is shown.
 4. Clicking the chip opens a hosted trade page: quote, build, sign with Phantom, send.
 5. The positions page shows open positions and lets you claim winnings.
 
-## Mainnet proof
+## Try it
 
-| Item | Link |
+- Live site: https://sorot-three.vercel.app (landing, trade page, positions page, API)
+- Extension: download `sorot-extension-v0.1.0.zip` from the [latest GitHub release](https://github.com/Im-A-Nuel/sorot/releases/latest), unzip it, open `chrome://extensions`, turn on Developer mode, choose Load unpacked and select the unzipped folder. It talks to the live site above.
+- Or open the [trade page](https://sorot-three.vercel.app/t/open) directly: it redirects to a market that is open right now.
+
+## Status and proof
+
+Sorot is an early build. This table says what has been checked and what has not.
+
+| Item | Status |
 | --- | --- |
-| Trade placed from a tweet | TODO |
-| Claim | TODO |
-| Match precision on 50 labeled tweets | TODO% (see `eval/`) |
-| Extension download | TODO (GitHub release / Chrome Web Store) |
+| Catalog sync, odds and matching on live Panta markets | Works. Checked against the live API. |
+| Real quote and transaction build from Panta | Works. A real quote is shown on the trade page, and the built transaction compiles offline. |
+| Chip on a timeline, click to open the trade page | Works in the browser test and in the demo video. The timeline in the video is a simulated X page. |
+| Signing in Phantom and sending to Panta | Not yet run on mainnet. The signing code is tested with a stand-in wallet and on devnet, not with a real Panta trade. |
+| Trade attribution and claims | Written, not yet exercised with a real trade. |
+| Match precision | Not measured on real tweets yet. The target is at least 80% on 50 labeled tweets (`eval/`), and the number will come from `pnpm eval`. |
+| Chrome Web Store | Not submitted. Install from the release zip. |
 
 ## Panta API usage
 
@@ -37,10 +48,12 @@ The same pattern is proven on Polymarket by extensions like PMs4X. Sorot is the 
 | `GET /markets/{id}/` | Chip odds and market detail |
 | `GET /markets/{id}/trades/` | Recent activity on the trade page |
 | `POST /primaryorderquote/` | Quote before buying |
-| `POST /primaryorderbuild/` | Transaction to sign |
+| `POST /primaryorderbuild/` | Instructions to sign, with a slippage limit |
+| `POST /primaryordersubmit/` | Register the signature |
+| `POST /primaryorderverify/` | Check the trade status |
 | `GET /positions/?wallet=` | Positions and claim status |
-| Claim build | Claim winnings |
-| Trade attribution | Every trade attributed to Sorot |
+| `POST /claim/build/` | Instructions to claim winnings |
+| `POST /trades/` | Report each trade so it is attributed to Sorot |
 
 ## Tech stack
 
@@ -48,7 +61,7 @@ The same pattern is proven on Polymarket by extensions like PMs4X. Sorot is the 
 | --- | --- |
 | Extension | Chrome Manifest V3, TypeScript, Vite |
 | App + API | Next.js (App Router), route handlers |
-| Matching | Embedding API + small LLM for verification |
+| Matching | Local embeddings by default (remote optional), heuristic or LLM verification |
 | Wallet | Solana wallet adapter (Phantom) on the hosted trade page |
 | Database | Postgres |
 | Deploy | Vercel |
@@ -58,7 +71,7 @@ The same pattern is proven on Polymarket by extensions like PMs4X. Sorot is the 
 Prerequisites: Node 20.12+, pnpm 9+, Chrome. A Panta key, an embedding/LLM key and Postgres are optional: without them Sorot runs on labeled demo fixtures.
 
 ```bash
-git clone https://github.com/<you>/sorot && cd sorot
+git clone https://github.com/Im-A-Nuel/sorot && cd sorot
 pnpm install
 pnpm panta:setup                  # creates .env, a Panta account and an API key (or: cp .env.example .env and fill it by hand)
 pnpm db:migrate                   # only with DATABASE_URL (Neon)

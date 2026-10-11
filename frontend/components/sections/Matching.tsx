@@ -1,6 +1,7 @@
 import { matching } from "@/lib/content";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { MatchFunnel } from "@/components/illustrations/MatchFunnel";
 
 export function Matching() {
   return (
@@ -16,7 +17,7 @@ export function Matching() {
         />
         <div className="grain" aria-hidden="true" />
 
-        <div className="relative mx-auto w-full max-w-[1120px] px-6 py-16 md:px-10 md:py-24">
+        <div className="relative mx-auto w-full max-w-[1120px] px-6 py-14 md:px-10 md:py-20">
           <Reveal>
             <SectionHeading
               tone="dark"
@@ -26,23 +27,18 @@ export function Matching() {
             />
           </Reveal>
 
-          <ol className="mt-14 border-t border-white/20">
+          <Reveal>
+            <MatchFunnel className="mt-12 h-auto w-full" />
+          </Reveal>
+
+          <ol className="mt-8 grid gap-8 border-t border-white/20 pt-8 md:grid-cols-3 md:gap-10">
             {matching.stages.map((stage, i) => (
-              <li
-                key={stage.title}
-                className="grid gap-x-8 gap-y-3 border-b border-white/20 py-8 md:grid-cols-[5rem_1fr_16rem] md:items-baseline"
-              >
-                <span className="text-[44px] font-semibold leading-none tracking-[-0.04em] tabular-nums text-white/90">
-                  {i + 1}
-                </span>
-                <div>
-                  <h3 className="text-[22px] font-semibold tracking-[-0.02em]">{stage.title}</h3>
-                  <p className="mt-2 max-w-[520px] text-[15.5px] leading-relaxed text-ondark">
-                    {stage.body}
-                  </p>
-                </div>
+              <li key={stage.title}>
+                <p className="text-[13px] font-semibold tabular-nums text-[#9aa6ff]">Stage {i + 1}</p>
+                <h3 className="mt-1 text-[20px] font-semibold tracking-[-0.015em]">{stage.title}</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-ondark">{stage.body}</p>
                 <p
-                  className={`text-[14.5px] font-medium md:text-right ${
+                  className={`mt-3 text-[14px] font-medium ${
                     i === matching.stages.length - 1 ? "text-[#9aa6ff]" : "text-ondark-subtle"
                   }`}
                 >
@@ -52,38 +48,12 @@ export function Matching() {
             ))}
           </ol>
 
-          <div className="mt-12 grid gap-10 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
-            <ul className="space-y-3.5">
-              {matching.rules.map((rule) => (
-                <li key={rule} className="flex gap-3 text-[15px] leading-snug text-white/90">
-                  <span
-                    aria-hidden="true"
-                    className="mt-[9px] size-1.5 shrink-0 rounded-full bg-[#9aa6ff]"
-                  />
-                  {rule}
-                </li>
-              ))}
-            </ul>
-
-            <div>
-              <p className="text-[14px] font-semibold text-ondark">Design targets</p>
-              <ul className="mt-3 flex gap-10">
-                {matching.targets.map((item) => (
-                  <li key={item.caption}>
-                    <p className="text-[clamp(34px,4vw,46px)] font-semibold leading-none tracking-[-0.04em]">
-                      {item.value}
-                    </p>
-                    <p className="mt-2 max-w-[150px] text-[13px] leading-snug text-ondark">
-                      {item.caption}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-5 text-[13px] leading-snug text-ondark-subtle">
-                {matching.targetsNote}
-              </p>
-            </div>
-          </div>
+          <p className="mt-10 max-w-[640px] text-[15px] leading-relaxed text-white/90">
+            {matching.rules}
+          </p>
+          <p className="mt-2 max-w-[640px] text-[13px] leading-snug text-ondark-subtle">
+            {matching.targetsNote}
+          </p>
         </div>
       </div>
     </section>

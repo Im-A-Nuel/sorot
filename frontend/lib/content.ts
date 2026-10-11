@@ -26,7 +26,6 @@ export const content = {
 } as const;
 
 export const trust = {
-  line: "Reads x.com in Chrome. Markets and quotes from Panta. Signing in Phantom on Solana.",
   // The status box reads /api/health, so it always says what this deployment is really connected to.
   status: {
     live: "Early build, connected to live Panta markets. Trades use real USDC on Solana mainnet. Only a few markets are open at any time, so most tweets get no chip, and matching precision has not been measured on real tweets yet.",
@@ -38,73 +37,29 @@ export const trust = {
   note: "Prices in previews on this page are illustrative. A live chip only shows what the Panta API returned.",
 } as const;
 
-export const journey = {
-  eyebrow: "Your path",
-  title: "From install to your first position.",
-  body: "There is no sign-up and no account. Your Phantom wallet is your login, and Sorot only asks for it on the trade page and the positions page.",
-  steps: [
-    {
-      title: "Install the extension",
-      body: "Build it from source for now. It adds a small chip under matching tweets on x.com.",
-      link: { label: "Install guide", href: "#install" },
-    },
-    {
-      title: "Use X as usual",
-      body: "Scroll. When a tweet matches a Panta market, odds appear under it. Tweets without a match stay untouched.",
-    },
-    {
-      title: "Click the chip to trade",
-      body: "A trade window opens. This is where you connect Phantom, pick YES or NO, get a quote and approve it.",
-      link: { label: "Open a trade page", href: "/t/open" },
-    },
-    {
-      title: "Check your positions",
-      body: "The positions page lists what you hold and lets you claim winnings. It is linked from the trade window, the extension popup and this site.",
-      link: { label: "Open positions (demo)", href: "/positions" },
-    },
-  ],
-} as const;
-
-export const problem = {
-  eyebrow: "The gap",
-  title: "Prediction markets are a destination. The argument isn't.",
-  body: "People rarely open a market page to argue about an event. They argue on X. Sorot brings the market to the argument.",
-  points: [
-    {
-      title: "The debate lives on X",
-      body: "Price calls, launches, elections, rulings. The takes happen in the timeline, not on a market site.",
-    },
-    {
-      title: "Panta lives elsewhere",
-      body: "Panta markets sit on Panta's own surface, a few terminals, Telegram bots and Blinks.",
-    },
-    {
-      title: "No timeline overlay",
-      body: "We found no Panta overlay for the X timeline. The same pattern already works for other markets, so we built it for Panta.",
-    },
-  ],
-} as const;
-
 export const how = {
   eyebrow: "How it works",
   title: "Odds under the tweet. One click to trade.",
-  body: "A Chrome extension reads the timeline, the API matches tweets to the Panta catalog, and a chip appears only when the match is verified.",
+  body: "People argue on X, not on market sites. Sorot brings the market to the argument. There is no sign-up and no account: your Phantom wallet is your login.",
   steps: [
     {
-      title: "Read",
-      body: "The content script watches tweets as they appear, in small batches, without blocking scrolling. Each tweet is sent once per session.",
+      title: "Install the extension",
+      body: "Load it in Chrome from source. It adds a small chip under matching tweets on x.com.",
+      link: { label: "Install guide", href: "#install" },
     },
     {
-      title: "Match",
-      body: "The API checks the tweet against the Panta catalog: entity prefilter, embedding similarity, then a yes/no verification.",
+      title: "Scroll X as usual",
+      body: "When a tweet matches a Panta market, the odds appear under it. No match, nothing on screen.",
     },
     {
-      title: "Show",
-      body: "Only a verified match gets a chip with the market title and YES and NO odds. No match, nothing on screen.",
+      title: "Click the chip",
+      body: "A trade window opens. Pick YES or NO, get a quote from Panta, and approve it.",
+      link: { label: "Open a trade page", href: "/t/open" },
     },
     {
-      title: "Trade",
-      body: "Click the chip. A trade window opens: pick a side, get a quote, sign with Phantom, see your position.",
+      title: "Sign in Phantom",
+      body: "You review and sign in your own wallet. Your positions, and a claim button once a market resolves, live on the positions page.",
+      link: { label: "Open positions", href: "/positions" },
     },
   ],
 } as const;
@@ -116,145 +71,55 @@ export const matching = {
   stages: [
     {
       title: "Entity prefilter",
-      body: "Tickers, names and dates in the tweet must overlap with a market in the catalog.",
-      outcome: "No overlap: stop, no chip",
+      body: "Tickers, names and dates in the tweet must overlap with a market.",
+      outcome: "No overlap: no chip",
     },
     {
       title: "Embedding similarity",
-      body: "The tweet is compared with every market title. Only the top match above the threshold moves on.",
-      outcome: "Below threshold: stop, no chip",
+      body: "The tweet is compared with every market title. Only the best match above a threshold moves on.",
+      outcome: "Below threshold: no chip",
     },
     {
       title: "Verification",
-      body: "A small model answers one question: is this the same event? Anything short of a clear yes stops.",
+      body: "A final check answers one question: is this the same event? Anything short of a clear yes stops.",
       outcome: "Clear yes: chip",
     },
   ],
-  rules: [
-    "Closed or resolved markets never get a chip.",
-    "A missing price shows “see odds”, never a guess.",
-    "Results are cached per tweet for 24 hours.",
-    "Titles come from the hydrated catalog, because many API titles are empty.",
-  ],
-  targets: [
-    { value: "≥ 80%", caption: "precision on 50 labeled tweets" },
-    { value: "< 4", caption: "clicks from chip to trade" },
-  ],
+  rules: "Closed or resolved markets never get a chip, and a missing price shows “see odds”, never a guess.",
   targetsNote:
-    "Targets, not results. The pipeline is built and tested on synthetic tweets, but real precision needs the Panta catalog and 50 labeled tweets. It will come from pnpm eval.",
-} as const;
-
-export const trade = {
-  eyebrow: "Trade",
-  title: "From the chip to a position, in a few clicks.",
-  body: "Trades are signed on a hosted page opened as a popup. Phantom does not inject into extension pages, so signing never happens inside the extension.",
-  left: [
-    { title: "Pick a side", body: "Choose YES or NO and an amount in USDC." },
-    {
-      title: "Get a quote",
-      body: "Panta simulates the fill and the fee. A quote lives for about 90 seconds, so the popup counts it down.",
-    },
-  ],
-  right: [
-    {
-      title: "Sign in Phantom",
-      body: "Panta builds the instructions, you review and sign in your own wallet, and the signature is sent to Panta.",
-    },
-    {
-      title: "Track and claim",
-      body: "Your position shows on the positions page, with a claim button once a market resolves.",
-    },
-  ],
-} as const;
-
-export const features = {
-  eyebrow: "Features",
-  title: "Everything the argument needs.",
-  flagship: {
-    title: "Odds chip",
-    status: "Built",
-    body: "Market title, YES and NO odds, and a “Powered by Panta” label, right under the tweet. When a price is missing, the chip says “see odds” instead of guessing.",
-  },
-  items: [
-    {
-      title: "Verified matches",
-      status: "In progress",
-      body: "A three-stage check: entity prefilter, embedding similarity, yes/no verification. Precision gets measured on 50 labeled tweets before it is claimed.",
-    },
-    {
-      title: "Trade from the tweet",
-      status: "Untested with a wallet",
-      body: "Quote, sign and confirm from a popup opened by the chip. Quotes and transactions are built by Panta and compile correctly. The signing step has not yet been run end to end with a real wallet.",
-    },
-    {
-      title: "Positions and claims",
-      status: "Untested with a wallet",
-      body: "Open positions for your wallet and a claim button for resolved markets. The page reads positions from Panta. Claiming has not been run end to end yet.",
-    },
-    {
-      title: "Trade attribution",
-      status: "Untested live",
-      body: "Every trade is reported to Panta with Sorot's attribution id, so Panta can see the volume Sorot brings. The code is written and gets tested with the first real trade.",
-    },
-    {
-      title: "Read-only mode",
-      status: "Planned",
-      body: "Hide trade buttons and keep only the odds.",
-    },
-  ],
+    "Target: at least 80% precision on 50 labeled tweets. Not measured yet. The number will come from pnpm eval.",
 } as const;
 
 export const security = {
   eyebrow: "Security",
   title: "Built so you do not have to trust us with keys.",
-  body: "The extension only reads tweets and draws chips. Everything sensitive lives somewhere else, on purpose. The API runs inside the same app and only calls an allowlist of Panta routes.",
+  body: "The extension only reads tweets and draws chips. The Panta key stays on the server, and every transaction is signed in your own Phantom.",
   flow: [
-    { name: "Extension", role: "Reads tweets, draws chips. Holds no keys." },
-    { name: "Sorot API", role: "Holds the Panta key. Proxies an allowlist of routes." },
+    { name: "Extension", role: "Reads tweets and draws chips. Holds no keys." },
+    { name: "Sorot API", role: "Holds the Panta key. Calls only an allowlist of Panta routes." },
     { name: "Phantom", role: "Signs every transaction on the hosted trade page." },
   ],
-  items: [
-    {
-      title: "Panta key stays on the server",
-      body: "The browser talks to Sorot's API. The key never ships in the extension, and a build check greps the bundle for it.",
-    },
-    {
-      title: "No wallet keys, ever",
-      body: "Sorot never stores keys or seed phrases. You approve each transaction in Phantom.",
-    },
-    {
-      title: "Minimal permissions",
-      body: "Host access is limited to x.com and the Sorot API, plus local storage. Nothing else.",
-    },
-    {
-      title: "Honest numbers",
-      body: "Chips show only what the Panta API returned. Backend text is rendered as plain text, never as HTML.",
-    },
-  ],
+  note: "Sorot never stores wallet keys or seed phrases. Host access is limited to x.com and the Sorot API. Chips show only what Panta returned.",
 } as const;
 
 export const pantaApi = {
   eyebrow: "Panta API",
   title: "Panta, end to end.",
-  body: "The Panta routes the Sorot API calls: catalog, quotes, transaction building, signature submission, verification, positions, claims and trade reporting.",
-  note: "* Path taken from public integrations. It gets confirmed when the Panta API key is issued.",
-  rows: [
-    { route: "GET /markets/", use: "Catalog sync" },
-    { route: "GET /markets/{id}/", use: "Chip odds and market detail", unconfirmed: true },
+  body: "From catalog to claim, these are the Panta routes the Sorot API calls, and the only ones it will call.",
+  stops: [
+    { route: "GET /markets/", use: "Catalog and market detail" },
     { route: "POST /primaryorderquote/", use: "Quote, valid for about 90 seconds" },
-    { route: "POST /primaryorderbuild/", use: "Instructions to sign, with slippage limit" },
-    { route: "POST /primaryordersubmit/", use: "Register the signature" },
-    { route: "POST /primaryorderverify/", use: "Check the trade status" },
-    { route: "GET /positions/?wallet=", use: "Positions and claimable flag", unconfirmed: true },
-    { route: "POST /claim/build/", use: "Instructions to claim winnings" },
-    { route: "POST /trades/", use: "Report a trade for attribution" },
+    { route: "POST /primaryorderbuild/", use: "Instructions to sign, with a slippage limit" },
+    { route: "POST /primaryordersubmit/", use: "Register the signature, then check it with /primaryorderverify/" },
+    { route: "GET /positions/", use: "Positions, and POST /claim/build/ for winnings" },
+    { route: "POST /trades/", use: "Report the trade for Sorot attribution" },
   ],
 } as const;
 
 export const install = {
   eyebrow: "Install",
   title: "Try Sorot from source.",
-  body: "Sorot is not on the Chrome Web Store, and review there takes days. Install it as an unpacked extension: download the zip from the latest GitHub release, or build it from source. Building from source needs Node 20.12+ and pnpm 9+.",
+  body: "Sorot is not on the Chrome Web Store yet. Build it and load it as an unpacked extension. You need Node 20.12+ and pnpm 9+.",
   commands: [
     { label: "Clone the repository", code: "git clone https://github.com/Im-A-Nuel/sorot.git" },
     { label: "Install dependencies", code: "pnpm install" },
@@ -264,7 +129,7 @@ export const install = {
   steps: [
     "Open chrome://extensions and turn on Developer mode.",
     "Choose Load unpacked and select the extension/dist folder.",
-    "Open x.com. A tweet that mentions SOL and 300, or ETH and 5k, gets a chip labeled Demo. Clicking it opens the trade page.",
+    "Open x.com. A tweet that mentions SOL and 300, or ETH and 5k, gets a chip labeled Demo.",
   ],
 } as const;
 
@@ -274,47 +139,27 @@ export const faq = {
   items: [
     {
       q: "What works today?",
-      a: "The extension, the trade page, the positions page and the API are built and connected to live Panta markets. Matching is tested on synthetic tweets, and the wallet signing step is still being verified with a real trade. Only a few Panta markets are open at any time. The status box under the hero shows what this site is connected to.",
+      a: "The extension, the trade page, the positions page and the API are built and connected to live Panta markets. Matching is tested on synthetic tweets, and the wallet signing step is still being verified with a real trade. The status box under the hero shows what this site is connected to.",
     },
     {
-      q: "Where do I connect my wallet?",
-      a: "On the trade page, the first time you trade, and on the positions page. There is no sign-up and no account, so the wallet is the only thing you connect. You can also use the Connect Phantom button in the header of either page.",
-    },
-    {
-      q: "Where do I see my positions?",
-      a: "On the positions page. It is linked from the header of the trade window, from the extension popup, and from the navigation on this site.",
+      q: "Where do I connect my wallet and see my positions?",
+      a: "There is no sign-up and no account. You connect Phantom on the trade page the first time you trade, and on the positions page. Both have a Connect Phantom button in the header, and the positions page is linked from the trade window and the extension popup.",
     },
     {
       q: "Does Sorot hold my funds or keys?",
       a: "No. Sorot never stores wallet keys or seed phrases. You sign every transaction in Phantom.",
     },
     {
-      q: "Do I need an account?",
-      a: "No sign-up. You connect Phantom on the trade page only when you want to trade.",
-    },
-    {
       q: "Is it real money?",
-      a: "Yes, when this site is connected to live Panta markets. Panta runs on Solana mainnet only, with no testnet, so trades use real USDC. Only trade what you can afford to lose. In sandbox or demo mode nothing moves real money, and the status box says so.",
+      a: "Yes, when this site is connected to live Panta markets. Panta runs on Solana mainnet only, so trades use real USDC. Only trade what you can afford to lose. Odds can be wrong and nothing here is financial advice. In sandbox or demo mode no real money moves, and the status box says so.",
     },
     {
       q: "Why is there no chip under a tweet?",
-      a: "Sorot is precision-first. If the match is not a clear yes, it shows nothing. Closed and resolved markets never get a chip.",
-    },
-    {
-      q: "Which sites does it run on?",
-      a: "Only x.com, in Chrome and Chromium-based browsers.",
+      a: "Sorot is precision-first. If the match is not a clear yes, it shows nothing. Closed and resolved markets never get a chip, and only a few Panta markets are open at a time.",
     },
     {
       q: "Can I use it in Indonesia?",
       a: "Sorot is not offered or promoted for real-money trading in Indonesia.",
-    },
-    {
-      q: "Does Sorot create markets?",
-      a: "No. Creating a Panta market costs real USDC, so it would only ever happen after you explicitly approve the fee. It is not part of the current release.",
-    },
-    {
-      q: "Is this financial advice?",
-      a: "No. Odds come from Panta markets and can be wrong. Trading carries a risk of loss.",
     },
   ],
 } as const;

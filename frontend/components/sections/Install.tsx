@@ -6,7 +6,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 export function Install() {
   return (
     <section id="install" className="relative scroll-mt-6">
-      <div className="mx-auto w-full max-w-[1120px] px-5 py-16 md:px-8 md:py-24">
+      <div className="mx-auto w-full max-w-[1120px] px-5 py-14 md:px-8 md:py-20">
         <div className="grid items-start gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <Reveal>
             <SectionHeading eyebrow={install.eyebrow} title={install.title} body={install.body} />

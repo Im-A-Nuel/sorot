@@ -1,6 +1,6 @@
 export function Logo({ size = 31 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-label="Swapify logo" role="img">
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-label="Sorot logo" role="img">
       <defs>
         <mask id="logo-cross">
           <rect width="32" height="32" fill="#fff" />

@@ -7,7 +7,7 @@ Source: the reference hero supplied by the project owner (Swapify shot), extende
 Reading this as: product landing and trade tool for crypto-native X users, in a light lavender, ink-black, single electric-blue language, dial ENERGY 2 / RHYTHM 3 / MOTION 1.
 
 - ENERGY 2: the hero is loud (giant wordmark, phone, glow). Everything below it calms down so the trade tool stays readable.
-- RHYTHM 3: sections change composition on purpose (statement list, preview + timeline, dark funnel, annotated diagram, flagship + list, flow diagram, copy panel, accordion). No two neighbours share a layout.
+- RHYTHM 3: sections change composition on purpose (preview + illustrated steps, dark panel with a pipeline picture, centered who-holds-what diagram, route map, split install panel, accordion). No two neighbours share a layout. Every illustration is an inline SVG in `components/illustrations`, in the page palette, decorative, with the meaning repeated in text.
 - MOTION 1: hover and focus states, one fade on section headings and key visuals. Nothing loops. Reduced motion turns it all off.
 
 ## Palette (2 core + 1 accent, neutrals free)

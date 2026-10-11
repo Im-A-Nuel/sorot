@@ -6,7 +6,7 @@ import { PlusIcon } from "@/components/ui/Icons";
 export function Faq() {
   return (
     <section id="faq" className="relative scroll-mt-6">
-      <div className="mx-auto w-full max-w-[1120px] px-5 py-16 md:px-8 md:py-24">
+      <div className="mx-auto w-full max-w-[1120px] px-5 py-14 md:px-8 md:py-20">
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <Reveal>
             <SectionHeading eyebrow={faq.eyebrow} title={faq.title} />

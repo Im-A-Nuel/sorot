@@ -111,16 +111,18 @@ body {
   }
 }
 
-/* Visible keyboard focus everywhere. Mouse clicks do not show it. */
-:focus-visible {
-  outline: 2px solid var(--color-brand-blue);
-  outline-offset: 3px;
-  border-radius: 6px;
-}
+/* Visible keyboard focus everywhere. Mouse clicks do not show it. In the base layer so a component can opt out with outline-none. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-brand-blue);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
 
-.on-dark :focus-visible,
-.on-blue :focus-visible {
-  outline-color: #ffffff;
+  .on-dark :focus-visible,
+  .on-blue :focus-visible {
+    outline-color: #ffffff;
+  }
 }
 
 /* A real UI surface: tweet mock, popup mock, trade card. Solid, no blur. */

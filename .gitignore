@@ -13,3 +13,5 @@ dist-release
 dist-package-test
 release
 frontend/tests/.screenshots
+dist-prod
+demo-video

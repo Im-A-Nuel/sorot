@@ -12,7 +12,7 @@ export default function Page() {
   return (
     <main id="content">
       <Hero />
-      <div className="relative -mt-8 overflow-hidden rounded-t-[36px] bg-[#eef0fd] md:-mt-12 md:rounded-t-[56px]">
+      <div className="relative overflow-hidden bg-[#eef0fd]">
         <div aria-hidden="true" className="page-glow" />
         <div className="grain" aria-hidden="true" />
         <div className="relative">

@@ -46,7 +46,9 @@ export function Hero() {
             className="flex items-center justify-center rounded-full bg-[#050608] text-white"
             style={{
               height: `max(38px, ${u(36)})`,
-              width: `max(104px, ${u(101)})`,
+              minWidth: `max(104px, ${u(101)})`,
+              paddingInline: u(16),
+              whiteSpace: "nowrap",
               fontWeight: 450,
               fontSize: `max(13px, ${u(12.5)})`,
             }}
@@ -58,7 +60,9 @@ export function Hero() {
             className="flex items-center justify-center rounded-full border border-ink/25 bg-white/80 text-ink"
             style={{
               height: `max(38px, ${u(36)})`,
-              width: `max(112px, ${u(108)})`,
+              minWidth: `max(112px, ${u(108)})`,
+              paddingInline: u(16),
+              whiteSpace: "nowrap",
               fontWeight: 450,
               fontSize: `max(13px, ${u(12.5)})`,
             }}
@@ -75,6 +79,17 @@ export function Hero() {
         <Wordmark />
         <PhoneMockup />
       </div>
+
+      {/* Dissolves the bottom of the hero into the page color, so the wordmark and phone fade out instead of being cut. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 -bottom-0.5 z-30"
+        style={{
+          height: u(240),
+          background:
+            "linear-gradient(to bottom, rgba(238,240,253,0) 0%, rgba(238,240,253,0.12) 20%, rgba(238,240,253,0.4) 45%, rgba(238,240,253,0.75) 70%, rgba(238,240,253,0.95) 90%, #eef0fd 100%)",
+        }}
+      />
     </section>
   );
 }

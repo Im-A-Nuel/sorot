@@ -28,14 +28,68 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 1 design unit = 1px on the 1080px reference frame; phones zoom the visual stage in. */
+/* 1 design unit = 1px on the 1080px reference frame. Desktop scales the whole stage to the viewport width. */
 .hero {
   --u: calc(100cqw / 1080);
+  --nu: var(--u);
+  --wm: calc(400 * var(--u));
+  --wm-drop: -0.35;
+  --fade: calc(240 * var(--u));
+  height: max(100svh, 62.5vw);
 }
 
+.hero-copy {
+  top: calc(112 * var(--u));
+}
+
+.hero-title {
+  font-size: max(34px, calc(56 * var(--u)));
+  line-height: 1.09;
+  letter-spacing: -0.025em;
+}
+
+.hero-sub {
+  margin-top: calc(15 * var(--u));
+  max-width: min(calc(420 * var(--u)), 88%);
+  font-size: max(12px, calc(13.2 * var(--u)));
+  line-height: 1.42;
+}
+
+.hero-actions {
+  margin-top: calc(29 * var(--u));
+  gap: 8px;
+}
+
+/*
+ * Phones: the stage is drawn bigger so the phone is readable, the wordmark is sized to fit the screen width so it is
+ * never cut at the sides, and the hero is only as tall as its content instead of the whole screen.
+ */
 @media (max-width: 767px) {
   .hero {
-    --u: calc(100cqw / 620);
+    --u: calc(100cqw / 450);
+    --nu: calc(100cqw / 620);
+    --wm: 36cqw;
+    --wm-drop: -0.1;
+    --fade: 110px;
+    height: calc(56.4vw + 420px);
+  }
+
+  .hero-copy {
+    top: 92px;
+  }
+
+  .hero-title {
+    font-size: clamp(34px, 9.6vw, 44px);
+  }
+
+  .hero-sub {
+    margin-top: 14px;
+    max-width: min(360px, 90%);
+    font-size: 15px;
+  }
+
+  .hero-actions {
+    margin-top: 24px;
   }
 }
 

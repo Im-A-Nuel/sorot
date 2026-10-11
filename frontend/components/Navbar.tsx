@@ -4,10 +4,10 @@ import { MobileMenu } from "./MobileMenu";
 
 export function Navbar() {
   return (
-    <header className="absolute inset-x-0 top-0 z-30 flex h-[calc(72*var(--u))] min-h-16 items-center justify-between px-[max(20px,calc(83*var(--u)))]">
+    <header className="absolute inset-x-0 top-0 z-30 flex h-[calc(72*var(--nu))] min-h-16 items-center justify-between px-[max(20px,calc(83*var(--nu)))]">
       <nav
         aria-label="Primary"
-        className="hidden items-center gap-[calc(25*var(--u))] text-[max(12.5px,calc(13.2*var(--u)))] font-medium md:flex"
+        className="hidden items-center gap-[calc(25*var(--nu))] text-[max(12.5px,calc(13.2*var(--nu)))] font-medium md:flex"
       >
         {content.nav.map((item) => (
           <a key={item.label} href={item.href} className="py-3">
@@ -26,7 +26,7 @@ export function Navbar() {
         <Logo />
       </a>
 
-      <div className="ml-auto mt-[calc(4*var(--u))] flex items-center gap-[calc(19*var(--u))] text-[max(12px,calc(12.5*var(--u)))] font-medium">
+      <div className="ml-auto mt-[calc(4*var(--nu))] flex items-center gap-[calc(19*var(--nu))] text-[max(12px,calc(12.5*var(--nu)))] font-medium">
         {content.appLinks.map((link) => (
           <a key={link.label} href={link.href} className="hidden py-3 sm:inline">
             {link.label}
@@ -37,7 +37,7 @@ export function Navbar() {
         </a>
         <a
           href={content.primaryLink.href}
-          className="flex h-[max(44px,calc(28*var(--u)))] items-center md:h-[max(36px,calc(28*var(--u)))] rounded-full bg-brand-blue px-[max(14px,calc(18*var(--u)))] text-white"
+          className="flex h-[max(44px,calc(28*var(--nu)))] items-center md:h-[max(36px,calc(28*var(--nu)))] rounded-full bg-brand-blue px-[max(14px,calc(18*var(--nu)))] text-white"
         >
           {content.primaryLink.label}
         </a>

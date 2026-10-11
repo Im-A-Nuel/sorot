@@ -1,5 +1,4 @@
 import { content } from "@/lib/content";
-import { u } from "@/lib/units";
 
 export function Wordmark() {
   return (
@@ -9,8 +8,8 @@ export function Wordmark() {
       style={{
         left: "50%",
         transform: "translateX(-50%)",
-        bottom: u(-140),
-        fontSize: u(400),
+        bottom: "calc(var(--wm) * var(--wm-drop))",
+        fontSize: "var(--wm)",
         letterSpacing: "-0.03em",
       }}
     >

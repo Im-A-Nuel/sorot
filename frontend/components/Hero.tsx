@@ -10,37 +10,26 @@ export function Hero() {
     <section
       id="top"
       className="hero relative w-full overflow-hidden [container-type:inline-size]"
-      style={{ height: "max(100svh, 62.5vw)" }}
     >
       <Background />
       <Navbar />
 
       <div
-        className="absolute inset-x-0 z-20 flex flex-col items-center text-center"
-        style={{ top: u(112) }}
+        className="hero-copy absolute inset-x-0 z-20 flex flex-col items-center text-center"
       >
         <h1
-          className="font-semibold text-ink"
-          style={{ fontSize: `max(34px, ${u(56)})`, lineHeight: 1.09, letterSpacing: "-0.025em" }}
+          className="hero-title font-semibold text-ink"
         >
           {content.headline[0]}
           <br />
           {content.headline[1]}
         </h1>
 
-        <p
-          className="font-medium text-ink/90"
-          style={{
-            marginTop: u(15),
-            maxWidth: `min(${u(420)}, 88%)`,
-            fontSize: `max(12px, ${u(13.2)})`,
-            lineHeight: 1.42,
-          }}
-        >
+        <p className="hero-sub font-medium text-ink/90">
           {content.subtitle}
         </p>
 
-        <div className="flex items-center" style={{ marginTop: u(29), gap: 8 }}>
+        <div className="hero-actions flex items-center">
           <a
             href={content.cta.href}
             className="hero-btn flex items-center justify-center rounded-full bg-[#050608] text-white"
@@ -83,7 +72,7 @@ export function Hero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 -bottom-0.5 z-30"
         style={{
-          height: u(240),
+          height: "var(--fade)",
           background:
             "linear-gradient(to bottom, rgba(238,240,253,0) 0%, rgba(238,240,253,0.12) 20%, rgba(238,240,253,0.4) 45%, rgba(238,240,253,0.75) 70%, rgba(238,240,253,0.95) 90%, #eef0fd 100%)",
         }}

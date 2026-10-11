@@ -28,7 +28,7 @@ export function Matching() {
           </Reveal>
 
           <Reveal>
-            <MatchFunnel className="mt-12 h-auto w-full" />
+            <MatchFunnel className="mt-12" />
           </Reveal>
 
           <ol className="mt-8 grid gap-8 border-t border-white/20 pt-8 md:grid-cols-3 md:gap-10">
